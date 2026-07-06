@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Réserver un terrain — BCCO Badminton Club Chambly Oise</title>
+<meta name="description" content="Réservez un terrain de badminton à la Halle Marie-Amélie Le Fur à Chambly, sans être adhérent." />
+<link rel="icon" type="image/webp" href="./media/cropped-Logo-BCCO-180x180.webp" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#060B3C" />
+<link rel="apple-touch-icon" href="./media/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/rd.css" />
+</head>
+<body>
+<div style="font-family:'Open Sans',system-ui,sans-serif;background:#FFFFFF;color:#0B1130;line-height:1.6;overflow-x:clip">
+
+  <!-- ===== NAV ===== -->
+  <nav id="nav" style="position:sticky;top:0;z-index:100;background:rgba(6,11,60,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(165,235,120,.18)">
+    <div style="max-width:1320px;margin:0 auto;padding:0 28px;height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+      <a href="index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff">
+        <img src="media/logo.webp" alt="Logo BCCO" style="width:44px;height:44px;object-fit:contain" />
+        <span style="font-family:'Anton',sans-serif;font-size:19px;letter-spacing:.03em;line-height:1;text-transform:uppercase">Badminton Club<span style="display:block;font-family:'Open Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.22em;color:#A5EB78;margin-top:3px">Chambly Oise</span></span>
+      </a>
+      <div class="rd-dsk" style="display:flex;align-items:center;gap:26px;font-size:14px;font-weight:800">
+        <a href="index.html#actus" style="color:rgba(255,255,255,.85);text-decoration:none" data-hover="color:#A5EB78">Actus</a>
+        <a href="index.html#horaires" style="color:rgba(255,255,255,.85);text-decoration:none" data-hover="color:#A5EB78">Horaires</a>
+        <a href="index.html#fitness" style="display:inline-flex;align-items:center;gap:7px;color:#A5EB78;text-decoration:none;border:1.5px solid #A5EB78;padding:7px 14px;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase" data-hover="background:#A5EB78;color:#060B3C">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>
+          Fitness
+        </a>
+        <a href="index.html#equipes" style="color:rgba(255,255,255,.85);text-decoration:none" data-hover="color:#A5EB78">Équipes</a>
+        <a href="galerie.html" style="color:rgba(255,255,255,.85);text-decoration:none" data-hover="color:#A5EB78">Galerie</a>
+        <a href="index.html#contact" style="color:rgba(255,255,255,.85);text-decoration:none" data-hover="color:#A5EB78">Contact</a>
+        <a href="reservations.html" style="color:#fff;text-decoration:none;border:1.5px solid rgba(255,255,255,.35);padding:9px 18px;font-weight:700;font-size:13px" data-hover="border-color:#A5EB78;color:#A5EB78">Réserver un terrain</a>
+        <a href="index.html#rejoindre" style="background:#A5EB78;color:#060B3C;text-decoration:none;padding:10px 20px;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;transform:skewX(-8deg);display:inline-block" data-hover="background:#7ed957">
+          <span style="display:inline-block;transform:skewX(8deg)">Se licencier</span>
+        </a>
+      </div>
+      <button class="rd-mob" data-menu-toggle aria-label="Menu" style="background:none;border:1.5px solid rgba(165,235,120,.5);color:#A5EB78;width:44px;height:44px;font-size:19px;cursor:pointer;font-family:inherit">☰</button>
+    </div>
+    <div class="rd-mobile-menu" style="flex-direction:column;gap:16px;padding:16px 28px 26px;background:rgba(6,11,60,.98);border-top:1px solid rgba(255,255,255,.1);font-size:15px;font-weight:600">
+      <a href="index.html#actus" data-menu-close style="color:rgba(255,255,255,.9);text-decoration:none">Actus</a>
+      <a href="index.html#horaires" data-menu-close style="color:rgba(255,255,255,.9);text-decoration:none">Horaires</a>
+      <a href="index.html#fitness" data-menu-close style="display:inline-flex;align-items:center;gap:8px;color:#A5EB78;text-decoration:none;border:1.5px solid #A5EB78;padding:9px 14px;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;width:max-content"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>Fitness</a>
+      <a href="index.html#equipes" style="color:rgba(255,255,255,.9);text-decoration:none">Équipes</a>
+      <a href="galerie.html" style="color:rgba(255,255,255,.9);text-decoration:none">Galerie</a>
+      <a href="index.html#contact" data-menu-close style="color:rgba(255,255,255,.9);text-decoration:none">Contact</a>
+      <a href="reservations.html" style="color:rgba(255,255,255,.9);text-decoration:none">Réserver un terrain</a>
+      <a href="index.html#rejoindre" data-menu-close style="background:#A5EB78;color:#060B3C;text-decoration:none;padding:12px 20px;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-align:center">Se licencier</a>
+    </div>
+  </nav>
+
+  <!-- ===== HEADER ===== -->
+  <header style="background:#060B3C;color:#fff;padding:100px 28px 70px;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-60px;top:0;bottom:0;width:220px;background:linear-gradient(180deg,rgba(165,235,120,.14),rgba(165,235,120,0));transform:skewX(-12deg)"></div>
+    <div style="max-width:1320px;margin:0 auto;position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:40px;align-items:end">
+      <div>
+        <div style="color:#A5EB78;font-size:13px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;margin-bottom:14px">Réservation en ligne</div>
+        <h1 style="font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(2.8rem,6vw,5.5rem);line-height:.95;text-transform:uppercase;margin:0">Réservez votre <span style="color:#A5EB78">terrain.</span></h1>
+        <p style="color:rgba(255,255,255,.8);font-size:16px;max-width:520px;margin:22px 0 0">Jouez à la Halle Marie-Amélie Le Fur, sans être adhérent. Un bénévole vous accueille sur place.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;color:rgba(255,255,255,.85)">
+        <div style="display:flex;gap:10px;align-items:center"><span style="color:#A5EB78">◆</span> Halle Marie-Amélie Le Fur, Rte de Gisors, 60230 Chambly</div>
+        <div style="display:flex;gap:10px;align-items:center"><span style="color:#A5EB78">◆</span> Réservation jusqu'à 14 jours à l'avance</div>
+        <div style="display:flex;gap:10px;align-items:center"><span style="color:#A5EB78">◆</span> Annulation gratuite jusqu'à 24h avant</div>
+        <div style="display:flex;gap:10px;align-items:center"><span style="color:#A5EB78">◆</span> 9 terrains homologués, filets installés</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== TARIFS ===== -->
+  <section style="max-width:1320px;margin:0 auto;padding:70px 28px 0">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px">
+      <div style="background:#F5F7FB;border-top:5px solid #060B3C;padding:28px 26px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#5A6380">1 heure</div>
+        <div style="font-family:'Anton',sans-serif;font-size:44px;color:#0A1988;line-height:1;margin-top:8px">16 €</div>      </div>
+      <div style="background:#060B3C;color:#fff;border-top:5px solid #A5EB78;padding:28px 26px;position:relative">
+        <span style="position:absolute;top:-14px;right:16px;background:#A5EB78;color:#060B3C;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;transform:skewX(-8deg)">Populaire</span>
+        <div style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.65)">1 heure 30</div>
+        <div style="font-family:'Anton',sans-serif;font-size:44px;color:#A5EB78;line-height:1;margin-top:8px">24 €</div>      </div>
+      <div style="background:#F5F7FB;border-top:5px solid #060B3C;padding:28px 26px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#5A6380">2 heures</div>
+        <div style="font-family:'Anton',sans-serif;font-size:44px;color:#0A1988;line-height:1;margin-top:8px">32 €</div>      </div>
+    </div>
+  </section>
+
+  <!-- ===== SÉLECTEUR DE DATE + CRÉNEAUX ===== -->
+  <section id="reserver" style="max-width:1320px;margin:0 auto;padding:60px 28px 110px">
+    <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:40px">
+      <button id="rv-prev" aria-label="Jour précédent" style="background:#F0F3FA;border:none;width:52px;height:52px;font-size:22px;cursor:pointer;color:#0A1988;font-family:inherit;font-weight:800">‹</button>
+      <div style="text-align:center;min-width:280px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#5A6380">Choisir une date</div>
+        <div id="rv-date-label" style="font-family:'Anton',sans-serif;font-size:30px;text-transform:uppercase;color:#060B3C">Aujourd'hui</div>
+      </div>
+      <button id="rv-next" aria-label="Jour suivant" style="background:#F0F3FA;border:none;width:52px;height:52px;font-size:22px;cursor:pointer;color:#0A1988;font-family:inherit;font-weight:800">›</button>
+    </div>
+
+    <div id="rv-slots" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px"></div>
+
+    <div style="display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:30px;font-size:13px;font-weight:600;color:#5A6380">
+      <span style="display:flex;align-items:center;gap:8px"><i style="width:12px;height:12px;background:#A5EB78;display:inline-block"></i>Places disponibles</span>
+      <span style="display:flex;align-items:center;gap:8px"><i style="width:12px;height:12px;background:#e2e6f0;display:inline-block"></i>Complet / fermé</span>
+    </div>
+
+    <!-- Récap sélection (injecté par rd-reservations.js) -->
+    <div id="rv-recap"></div>
+
+    <p style="margin-top:36px;text-align:center;font-size:12.5px;color:#5A6380">Version démo — le paiement Stripe et la confirmation par email ne sont pas encore connectés. Contact : <a href="mailto:bcco60@gmail.com" style="color:#0A1988;font-weight:700;text-decoration:none">bcco60@gmail.com</a></p>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer style="background:#060B3C;color:#fff;padding:36px 28px">
+    <div style="max-width:1320px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px;color:rgba(255,255,255,.6)">
+      <span>© <span data-year>2026</span> Badminton Club Chambly Oise</span>
+      <div style="display:flex;gap:22px;font-weight:600">
+        <a href="index.html" style="color:rgba(255,255,255,.75);text-decoration:none" data-hover="color:#A5EB78">Accueil</a>
+        <a href="galerie.html" style="color:rgba(255,255,255,.75);text-decoration:none" data-hover="color:#A5EB78">Galerie</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script src="js/rd-ui.js" defer></script>
+<script src="js/rd-reservations.js" defer></script>
+</body>
+</html>

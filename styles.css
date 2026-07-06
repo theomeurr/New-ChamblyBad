@@ -1,0 +1,26 @@
+/* ============================================================
+   styles.css — entry point
+   Ce fichier importe les modules CSS dans css/.
+   Il existait avant comme un seul fichier de 1721 lignes ;
+   il a été découpé en ~11 fichiers thématiques pour faciliter
+   la maintenance.
+
+   L'ordre des @import EST IMPORTANT : il reproduit l'ordre
+   d'origine pour préserver la cascade et la spécificité.
+   ============================================================ */
+
+@import url("css/_base.css");
+@import url("css/_layout.css");
+@import url("css/_home-sections.css");
+@import url("css/_section-equipes.css");
+@import url("css/_salle.css");
+@import url("css/_salle-editorial.css");
+@import url("css/_flamme-paralympique.css");
+@import url("css/_actualites-roster.css");
+@import url("css/_responsive.css");
+@import url("css/_bottom-nav.css");
+@import url("css/_planning-mobile.css");
+@import url("css/_faq.css");
+@import url("css/_contact-buttons.css");
+@import url("css/_animations.css");
+@import url("css/_mobile-optim.css"); /* doit rester en dernier : surcharge mobile finale */

@@ -1,0 +1,32 @@
+/* ============================================================
+   rd.css — Socle du design (maquettes Claude Design .dc.html)
+   Le design vit surtout dans les styles inline des pages (fidèle
+   aux maquettes) ; ce fichier ne porte que le global partagé.
+   ============================================================ */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#FFFFFF;color:#0B1130;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+img{max-width:100%;display:block}
+a{text-decoration:none}
+button{font-family:inherit}
+
+@keyframes tickerScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
+details summary::-webkit-details-marker{display:none}
+
+/* Affichage desktop / mobile (breakpoint maquette : 920px) */
+@media (max-width:920px){ .rd-dsk{display:none !important} }
+@media (min-width:921px){ .rd-mob{display:none !important} .rd-mobile-menu{display:none !important} }
+.rd-mobile-menu{display:none}
+.rd-mobile-menu.open{display:flex !important}
+
+/* Apparition au scroll (remplace data-reveal des maquettes) */
+[data-reveal]{opacity:0;transform:translateY(28px);transition:opacity .7s ease, transform .7s ease}
+[data-reveal].rd-in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  [data-reveal]{opacity:1 !important;transform:none !important;transition:none !important}
+}
+
+/* Barre de défilement horizontale discrète (scroller joueurs) */
+.rd-scroll::-webkit-scrollbar{height:8px}
+.rd-scroll::-webkit-scrollbar-thumb{background:rgba(6,11,60,.25)}

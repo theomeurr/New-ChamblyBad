@@ -1,0 +1,194 @@
+/* ============================================================
+   _section-equipes.css
+   Refonte de la section "Compétition / Équipes" sur la home :
+   - Mini-stats sur la photo
+   - Carte "Prochaine rencontre" mise en avant
+   - Différenciation Domicile/Extérieur, état passé/à venir
+   - Roster joueurs avec palmarès (depuis data/palmares.csv)
+   ============================================================ */
+
+/* ===== Stats sous le titre (ligne de palmarès) — fond clair ===== */
+.team-stats{
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;
+  margin:14px 0 16px;
+  padding:12px 10px;
+  background:#fff;
+  border:1px solid rgba(10,25,136,.08);
+  border-radius:12px;
+  color:var(--text);
+}
+.team-stats .ts-item{
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  text-align:center;
+}
+.team-stats .ts-num{
+  font-family:'Anton',sans-serif; font-size:clamp(1.4rem, 2.2vw, 1.9rem); line-height:1;
+  color:var(--secondary); letter-spacing:.02em;
+}
+.team-stats .ts-num .ts-x{
+  font-size:.7em; color:#7ed957; margin-left:1px;
+}
+.team-stats .ts-lbl{
+  font-size:9.5px; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--muted); font-weight:700;
+}
+
+/* ===== Carte "Prochaine rencontre" — bande verte BCCO subtile ===== */
+.next-match{
+  margin-top:14px;
+  padding:14px 18px;
+  border-radius:14px;
+  background:linear-gradient(135deg, rgba(165,235,120,.14), rgba(126,217,87,.07));
+  border:1px solid rgba(165,235,120,.45);
+  color:var(--text);
+  position:relative;
+  overflow:hidden;
+}
+.next-match::after{
+  content:""; position:absolute; right:-30px; top:-30px;
+  width:110px; height:110px; border-radius:50%;
+  background:radial-gradient(circle, rgba(165,235,120,.30), transparent 70%);
+  pointer-events:none;
+}
+.next-match .nm-eyebrow{
+  font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  color:#15803d; margin-bottom:6px;
+}
+.next-match .nm-line{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  font-family:'Anton',sans-serif; font-size:clamp(1.2rem, 2vw, 1.55rem);
+  letter-spacing:.02em; margin-bottom:4px;
+}
+.next-match .nm-team{ color:var(--secondary); }
+.next-match .nm-team.chambly{
+  background:linear-gradient(135deg, #16a34a, #15803d);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.next-match .nm-vs{
+  font-family:'Open Sans',sans-serif; font-size:.55em; color:var(--muted);
+  font-weight:600; letter-spacing:.08em;
+}
+.next-match .nm-meta{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  font-size:12.5px; color:var(--muted);
+}
+.next-match .nm-date{ font-weight:600; color:var(--text); }
+.next-match .nm-where{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 10px; border-radius:100px;
+  background:#fff; border:1px solid rgba(10,25,136,.10);
+  font-size:11.5px; font-weight:600;
+}
+.next-match .nm-where.home{ color:#15803d; }
+.next-match .nm-where.away{ color:#0A1988; }
+
+/* ===== États des matchs dans la liste ===== */
+/* Domicile : fond blanc + contour vert BCCO */
+.match.is-home{
+  background:#fff !important;
+  border:1px solid rgba(126,217,87,.55) !important;
+  border-left:4px solid #7ed957 !important;
+}
+/* Extérieur : fond blanc + contour bleu BCCO */
+.match.is-away{
+  background:#fff !important;
+  border:1px solid rgba(10,25,136,.35) !important;
+  border-left:4px solid #0A1988 !important;
+}
+
+/* Tag Domicile / Extérieur (avec icône SVG dans la couleur) */
+.match.is-home .tag{ background:rgba(126,217,87,.35); color:#15803d; }
+.match.is-away .tag{ background:rgba(10,25,136,.10); color:#0A1988; }
+
+/* Prochain match : surbrillance verte BCCO + halo (n'écrase pas l'accent gauche) */
+.match.is-next{
+  background:rgba(165,235,120,.10) !important;
+  box-shadow:0 0 0 2px rgba(165,235,120,.4) inset;
+}
+.match.is-past{ opacity:.5; }
+.match.is-past .date{ color:var(--muted); }
+
+/* ===== Roster (effectif sous la carte équipe) ===== */
+.team-roster{
+  margin-top:28px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px 24px 28px;
+}
+.tr-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  margin-bottom:18px; flex-wrap:wrap;
+}
+.tr-head h4{
+  font-family:'Anton',sans-serif; font-size:1.5rem; letter-spacing:.02em; margin:0;
+}
+.tr-more{
+  font-size:13px; font-weight:600; color:var(--secondary);
+  text-decoration:none;
+}
+.tr-more:hover{ color:var(--gold-2); }
+
+.tr-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(170px, 1fr));
+  gap:8px;
+}
+.tr-card{
+  display:flex; align-items:center; gap:10px;
+  padding:10px;
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  border-radius:10px;
+  transition:transform .2s, border-color .2s, box-shadow .2s;
+}
+.tr-card:hover{
+  transform:translateY(-2px);
+  border-color:var(--gold);
+  box-shadow:0 8px 24px rgba(10,25,136,.08);
+}
+.tr-card.is-todo{ opacity:.55; }
+.tr-avatar{
+  position:relative;
+  width:44px; height:44px; flex-shrink:0;
+  border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff;
+  font-family:'Anton',sans-serif; font-size:1rem; letter-spacing:.02em;
+}
+.tr-initials{
+  position:relative; z-index:1;
+  text-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+.tr-flag{
+  position:absolute; bottom:-4px; right:-4px;
+  font-size:14px; line-height:1;
+  background:#fff; padding:2px 4px; border-radius:8px;
+  box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+.tr-body{ min-width:0; flex:1; }
+.tr-name{
+  font-weight:700; font-size:14px; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.tr-headline{
+  font-size:12px; color:var(--muted); margin-top:2px;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+/* ===== Responsive ===== */
+@media (max-width:980px){
+  .team-stats{ padding:12px 10px; margin:14px 0 18px; }
+  .team-stats .ts-num{ font-size:1.4rem; }
+  .team-stats .ts-lbl{ font-size:9px; letter-spacing:.06em; }
+  .next-match .nm-line{ gap:10px; }
+}
+@media (max-width:640px){
+  .team-stats{ grid-template-columns:repeat(3, 1fr); gap:4px; padding:12px 6px; }
+  .team-stats .ts-num{ font-size:1.2rem; }
+  .next-match{ padding:14px 16px; }
+  .next-match .nm-meta{ gap:8px; font-size:12px; }
+  .team-roster{ padding:18px 16px 22px; }
+  .tr-grid{ grid-template-columns:1fr; }
+}

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; base-uri 'self'; form-action 'self'; object-src 'none';" />
+<!-- Anti-cache (page admin : on veut toujours la dernière version) -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta name="referrer" content="no-referrer" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Admin — BCCO</title>
+<link rel="icon" type="image/png" href="./media/cropped-Logo-BCCO-180x180.webp"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#FFFFFF;--bg-2:#F5F7FB;--surface:#FFFFFF;--surface-2:#F0F3FA;--line:rgba(10,25,136,.10);--text:#0B1130;--muted:#5A6380;--gold:#A5EB78;--gold-2:#7ed957;--secondary:#0A1988;--radius:18px;--shadow:0 20px 60px rgba(10,25,136,.14)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Open Sans',system-ui,sans-serif;color:var(--text);background:var(--bg-2);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+h1,h2,h3,h4{font-family:'Anton',sans-serif;font-weight:400;line-height:1.1;letter-spacing:.01em}
+a{color:inherit;text-decoration:none;transition:color .2s}
+.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Login screen */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#0A1988,#0B1130);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-overlay.hidden{display:none}
+.login-card{background:#fff;border-radius:24px;padding:48px 40px;max-width:400px;width:100%;text-align:center;box-shadow:0 40px 100px rgba(0,0,0,.3);animation:slideUp .4s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.login-card img{width:60px;height:60px;margin-bottom:16px}
+.login-card h2{font-size:1.5rem;margin-bottom:8px}
+.login-card p{color:var(--muted);font-size:14px;margin-bottom:28px}
+.login-card input{width:100%;padding:14px 18px;border:1px solid var(--line);border-radius:12px;font-size:15px;font-family:inherit;margin-bottom:16px;outline:none;transition:border-color .2s}
+.login-card input:focus{border-color:var(--secondary)}
+.login-card .login-btn{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#0A1988;font-family:'Anton',sans-serif;font-size:16px;font-weight:400;cursor:pointer;transition:transform .2s}
+.login-card .login-btn:hover{transform:translateY(-2px)}
+.login-card .login-hint{font-size:12px;color:var(--muted);margin-top:12px}
+.login-card .login-err{color:#ef4444;font-size:13px;font-weight:600;display:none;margin-bottom:8px}
+
+/* Topbar */
+.topbar{background:var(--surface);border-bottom:1px solid var(--line);padding:16px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(14px)}
+.topbar .logo{display:flex;align-items:center;gap:8px;font-weight:400;font-family:'Anton',sans-serif;font-size:18px}
+.topbar .logo img{width:36px;height:36px}
+.topbar .badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;background:var(--secondary);color:#fff;text-transform:uppercase;letter-spacing:.06em}
+.topbar-right{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.topbar-right a,.topbar-right button{padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);background:none;color:var(--text);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.topbar-right a:hover,.topbar-right button:hover{border-color:var(--gold);color:var(--gold-2)}
+.btn-danger{border-color:#ef4444!important;color:#ef4444!important}
+.btn-danger:hover{background:rgba(239,68,68,.05)!important}
+.btn-logout{border-color:#ef4444!important;color:#ef4444!important}
+.btn-logout:hover{background:rgba(239,68,68,.05)!important}
+#accesBtn{border-color:var(--secondary)!important;color:var(--secondary)!important}
+#accesBtn:hover{background:rgba(10,25,136,.06)!important;border-color:var(--secondary)!important}
+
+/* Dashboard */
+.dashboard{max-width:1200px;margin:0 auto;padding:24px}
+.section-title{font-size:1.15rem;margin:10px 0 10px 2px}
+.section-sub{font-size:12px;color:var(--muted);margin:-6px 0 14px 2px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:700px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:4px}
+.stat-card .stat-label{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stat-card .stat-val{font-family:'Anton',sans-serif;font-size:1.8rem;font-weight:400}
+.stat-card .stat-sub{font-size:12px;color:var(--muted)}
+.stat-card:nth-child(1) .stat-val{color:var(--secondary)}
+.stat-card:nth-child(2) .stat-val{color:var(--gold-2)}
+.stat-card:nth-child(3) .stat-val{color:#f59e0b}
+.stat-card:nth-child(4) .stat-val{color:#ef4444}
+
+/* Filters */
+.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{padding:10px 14px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-family:inherit;background:var(--surface);outline:none;transition:border-color .2s;color:var(--text)}
+.filters input:focus,.filters select:focus{border-color:var(--gold)}
+.filters input{min-width:200px}
+.filter-label{font-size:12px;font-weight:600;color:var(--muted);margin-right:-4px}
+
+/* Table */
+.table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--bg-2)}
+th{padding:12px 14px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover{background:rgba(165,235,120,.04)}
+.name-col{font-weight:600}
+.email-col{color:var(--muted);font-size:12px}
+.sport-badge{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;display:inline-block}
+.sport-badge.badminton{background:rgba(165,235,120,.15);color:var(--gold-2)}
+.sport-badge.pickle{background:rgba(10,25,136,.08);color:var(--secondary)}
+.status-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;display:inline-block;letter-spacing:.03em;text-transform:capitalize}
+.status-badge.confirmee{background:rgba(165,235,120,.15);color:var(--gold-2)}
+.status-badge.en-attente{background:rgba(245,158,11,.12);color:#d97706}
+.status-badge.annulee{background:rgba(239,68,68,.08);color:#ef4444}
+.status-badge.terminee{background:rgba(10,25,136,.08);color:var(--secondary)}
+.price-col{font-family:'Anton',sans-serif;font-weight:400}
+.actions-col{display:flex;gap:6px;flex-wrap:wrap}
+.act-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--line);background:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.act-btn:hover{transform:translateY(-1px)}
+.act-btn.confirm{border-color:var(--gold);color:var(--gold-2)}
+.act-btn.confirm:hover{background:rgba(165,235,120,.1)}
+.act-btn.cancel{border-color:#f59e0b;color:#d97706}
+.act-btn.cancel:hover{background:rgba(245,158,11,.08)}
+.act-btn.delete{border-color:#ef4444;color:#ef4444}
+.act-btn.delete:hover{background:rgba(239,68,68,.05)}
+
+/* Responsive table */
+@media(max-width:900px){
+  .table-wrap{overflow-x:auto}
+  table{min-width:860px}
+}
+
+.empty-state{padding:36px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;background:var(--surface)}
+.empty-state p{font-size:14px}
+
+/* Cancel modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(11,17,48,.6);display:none;align-items:center;justify-content:center;z-index:220;padding:18px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:18px;max-width:560px;width:100%;box-shadow:0 30px 90px rgba(0,0,0,.22);padding:22px}
+.modal h3{font-size:1.15rem;margin-bottom:8px}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:12px}
+.modal textarea{width:100%;min-height:130px;border-radius:12px;border:1px solid var(--line);padding:12px;font-size:13px;font-family:inherit;outline:none;resize:vertical}
+.modal textarea:focus{border-color:var(--gold)}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.modal-actions button{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:none;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-2))!important;border:none!important;color:#0A1988}
+.btn-secondary{border-color:var(--secondary)!important;color:var(--secondary)!important}
+/* Admin toolbar & data views */
+.admin-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.admin-sheet-btn{padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#0A1988;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.admin-refresh-btn{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.admin-status{font-size:12px;color:var(--muted);font-style:italic}
+.admin-actus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.admin-rencontres-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.admin-team-header{font-family:'Anton',sans-serif;font-weight:400;font-size:14px;color:var(--secondary);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.admin-team-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.admin-matches-list{display:flex;flex-direction:column;gap:8px}
+
+/* ============================================================
+   MOBILE OPTIMIZATIONS (≤640px et ≤480px) — n'affecte PAS le PC
+   ============================================================ */
+@media (max-width: 640px) {
+  /* ----- Login overlay : carte plus compacte ----- */
+  .login-card { padding: 36px 24px; max-width: 360px; }
+  .login-card img { width: 50px; height: 50px; }
+  .login-card h2 { font-size: 1.3rem; }
+  .login-card input { font-size: 16px; padding: 12px 14px; }
+  .login-card .login-btn { padding: 13px; font-size: 15px; }
+
+  /* ----- Topbar : pile les boutons en exactement 2 par ligne ----- */
+  .topbar { padding: 12px 14px; gap: 10px; flex-wrap: wrap; }
+  .topbar .logo { font-size: 15px; gap: 6px; }
+  .topbar .logo img { width: 30px; height: 30px; }
+  .topbar .badge { font-size: 10px; padding: 3px 7px; }
+  .topbar-right { width: 100%; gap: 6px; justify-content: flex-start; }
+  .topbar-right a,
+  .topbar-right button {
+    padding: 8px 10px;
+    font-size: 12px;
+    gap: 5px;
+    /* Largeur EXACTE 50% pour forcer 2 par ligne (Site/Voir FAQ, Gérer/Déconnexion) */
+    flex: 0 0 calc(50% - 3px);
+    max-width: calc(50% - 3px);
+    min-width: 0;
+    justify-content: center;
+    min-height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .topbar-right svg { width: 13px !important; height: 13px !important; flex-shrink: 0; }
+
+  /* ----- Dashboard : padding réduit ----- */
+  .dashboard { padding: 16px 14px; }
+  .section-title { font-size: 1.05rem; margin: 8px 0 8px 2px; }
+  .section-sub { font-size: 11.5px; line-height: 1.5; }
+
+  /* ----- Mini-dashboard santé (.ad-wrap) ----- */
+  .ad-wrap { padding: 16px 14px; border-radius: 14px; margin-bottom: 18px; }
+  .ad-head { margin-bottom: 12px; }
+  .ad-title { font-size: 15px; }
+  .ad-sub { font-size: 11px; }
+  .ad-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+  .ad-tile { padding: 12px; border-radius: 11px; }
+  .ad-tile-lbl { font-size: 9.5px; letter-spacing: .08em; }
+  .ad-tile-val { font-size: 16px !important; line-height: 1.2; }
+  .ad-tile-sub { font-size: 10.5px; }
+  .ad-alerts { margin-top: 10px; }
+  .ad-alert { font-size: 11.5px; padding: 8px 10px; }
+
+  /* ----- Stats row (.stats-row) ----- */
+  .stats-row { grid-template-columns: 1fr 1fr !important; gap: 10px; margin-bottom: 18px; }
+  .stat-card { padding: 14px; border-radius: 12px; }
+  .stat-card .stat-val { font-size: 1.4rem; }
+  .stat-card .stat-label { font-size: 10.5px; }
+  .stat-card .stat-sub { font-size: 10.5px; }
+
+  /* ----- Filters / toolbars : 1 par ligne ----- */
+  .filters { flex-direction: column; gap: 8px; align-items: stretch; }
+  .filters input,
+  .filters select { width: 100%; min-width: 0; font-size: 16px; }
+  .admin-toolbar { gap: 6px; }
+  .admin-toolbar .admin-sheet-btn,
+  .admin-toolbar .admin-refresh-btn { flex: 1 1 auto; justify-content: center; font-size: 12px; padding: 9px 10px; }
+  .admin-status { width: 100%; margin-top: 4px; text-align: center; font-size: 11px; }
+
+  /* ----- Toolbars modules (ae- ef- gl- imp-) ----- */
+  .ae-toolbar, .ef-toolbar, .gl-toolbar { gap: 6px; }
+  .ae-toolbar .ae-btn,
+  .ef-toolbar .ef-btn,
+  .gl-toolbar .gl-btn { font-size: 12px; padding: 9px 12px; flex: 1 1 auto; justify-content: center; }
+  .ae-status, .ef-status, .gl-status { width: 100%; text-align: center; font-size: 11px; margin: 4px 0 0; }
+  .ef-toolbar select,
+  .ef-toolbar input[type=search] { font-size: 16px; min-width: 0; width: 100%; }
+
+  /* ----- Tableau effectifs : layout fixe, badge ultra-compact ----- */
+  .ef-table-wrap { overflow-x: hidden; }
+  .ef-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .ef-table th,
+  .ef-table td {
+    padding: 9px 6px;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* On cache les colonnes Simple / Double / Mixte / Capitaine sur mobile */
+  .ef-table th:nth-child(4), .ef-table td:nth-child(4),  /* Simple */
+  .ef-table th:nth-child(5), .ef-table td:nth-child(5),  /* Double */
+  .ef-table th:nth-child(6), .ef-table td:nth-child(6),  /* Mixte */
+  .ef-table th:nth-child(7), .ef-table td:nth-child(7) { /* Capitaine */
+    display: none;
+  }
+  /* Largeurs des colonnes RESTANTES (1=Équipe, 2=Nom, 3=Prénom, 8=Actif, 9=Actions) */
+  .ef-table th:nth-child(1), .ef-table td:nth-child(1) { width: 26%; }   /* Équipe (badge) */
+  .ef-table th:nth-child(2), .ef-table td:nth-child(2) { width: 28%; }   /* Nom */
+  .ef-table th:nth-child(3), .ef-table td:nth-child(3) { width: 24%; }   /* Prénom */
+  .ef-table th:nth-child(8), .ef-table td:nth-child(8) { width: 10%; text-align: center; }   /* Actif */
+  .ef-table th:nth-child(9), .ef-table td:nth-child(9) { width: 12%; text-align: right; }    /* Actions */
+
+  /* Badge équipe : tout petit, ellipsize si trop long */
+  .ef-equipe-badge {
+    font-size: 9.5px;
+    padding: 2px 5px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  /* Actions : icônes seules (pas de texte) pour gagner de la place */
+  .ef-actions { gap: 4px !important; justify-content: flex-end; }
+  .ef-action-btn { padding: 5px 6px; font-size: 0 !important; }
+  .ef-action-btn svg { width: 12px; height: 12px; margin: 0; }
+  /* Toggle actif plus petit */
+  .ef-toggle { width: 32px; height: 18px; }
+  .ef-toggle .slider::before { width: 14px; height: 14px; }
+  .ef-toggle input:checked + .slider::before { transform: translateX(14px); }
+
+  /* ----- Tableau réservations : aussi cacher colonnes ----- */
+  .table-wrap table { min-width: 0 !important; }
+  .table-wrap th:nth-child(3), .table-wrap td:nth-child(3),  /* Durée */
+  .table-wrap th:nth-child(5), .table-wrap td:nth-child(5),  /* Contact */
+  .table-wrap th:nth-child(6), .table-wrap td:nth-child(6) { /* Type */
+    display: none;
+  }
+
+  /* ----- Grille actus admin (cards) ----- */
+  .ae-grid { grid-template-columns: 1fr !important; gap: 10px; }
+  .ae-card-img-wrap { height: 160px; }
+  .ae-card-body { padding: 12px; }
+  .ae-card-title { font-size: 15px; }
+
+  /* ----- Grille galerie admin ----- */
+  .gl-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+  .gl-card-body { padding: 9px 10px; gap: 6px; }
+  .gl-card-body input,
+  .gl-card-body select { font-size: 13px; padding: 6px 8px; }
+  .gl-card-row { grid-template-columns: 1fr; gap: 4px; }
+  .gl-card-foot { padding: 8px; gap: 4px; }
+  .gl-card-foot button { font-size: 10px; padding: 5px 6px; }
+  .gl-dropzone { padding: 18px 14px; }
+  .gl-dropzone-icon { font-size: 28px; }
+  .gl-dropzone-text { font-size: 13px; }
+
+  /* ----- Modales admin (édition) ----- */
+  .ae-modal, .ef-modal, .dg-modal {
+    border-radius: 16px;
+    max-height: 95vh;
+  }
+  .ae-modal-head, .ef-modal-head, .dg-modal-head { padding: 18px 16px 12px; }
+  .ae-modal-head h3, .ef-modal-head h3, .dg-modal-head h3 { font-size: 17px; }
+  .ae-modal-body, .ef-modal-body, .dg-modal-body { padding: 14px 16px; }
+  .ae-modal-foot, .ef-modal-foot { padding: 12px 16px 16px; flex-direction: column-reverse; gap: 8px; }
+  .ae-modal-foot .ae-btn,
+  .ef-modal-foot .ef-btn { width: 100%; justify-content: center; padding: 12px 16px; }
+  .ae-field input,
+  .ae-field textarea,
+  .ae-field select,
+  .ef-field input,
+  .ef-field select { font-size: 16px; padding: 11px 12px; }
+  .ae-row, .ef-row2, .ef-row3 { grid-template-columns: 1fr !important; }
+
+  /* ----- Section import CSV ----- */
+  .imp-card { padding: 18px 16px; border-radius: 14px; }
+  .imp-select { font-size: 16px; padding: 11px 12px; }
+  .imp-drop { padding: 18px 14px; }
+  .imp-drop-icon { font-size: 28px; }
+  .imp-drop-text { font-size: 13.5px; }
+  .imp-table { font-size: 11px; }
+  .imp-table td { max-width: 110px; }
+  .imp-actions { flex-direction: column-reverse; gap: 8px; }
+  .imp-actions .imp-btn { width: 100%; justify-content: center; }
+  .imp-summary { grid-template-columns: 1fr !important; }
+
+  /* ----- Drawer "Gérer les accès" : pleine largeur ----- */
+  #accesDrawer {
+    width: 100vw !important;
+    padding: 22px 18px 32px !important;
+  }
+  #accesDrawer input,
+  #accesDrawer select,
+  #accesDrawer textarea { font-size: 16px !important; }
+  #accesDrawer textarea { font-size: 12px !important; }
+
+  /* ----- Modale GitHub token : compacte ----- */
+  #bcco-token-modal .box { padding: 22px 18px; border-radius: 16px; }
+  #bcco-token-modal h3 { font-size: 19px; }
+  #bcco-token-modal p { font-size: 12.5px; }
+  #bcco-token-modal ol { font-size: 12px; }
+  #bcco-token-modal input { font-size: 13px; padding: 11px 13px; }
+  #bcco-token-modal .row { flex-direction: column-reverse; }
+  #bcco-token-modal button { width: 100%; }
+
+  /* ----- Toast notifications (positionné mieux sur mobile) ----- */
+  #bcco-toast {
+    top: auto !important;
+    bottom: 16px !important;
+    right: 12px !important;
+    left: 12px !important;
+    max-width: none !important;
+    font-size: 13px !important;
+    padding: 13px 16px !important;
+  }
+}
+
+/* ============================================================
+   ULTRA-MOBILE (≤420px) — finitions pour très petits écrans
+   ============================================================ */
+@media (max-width: 420px) {
+  .topbar-right a span,
+  .topbar-right button span { display: none; }  /* boutons en icon-only si textes */
+  .topbar-right a,
+  .topbar-right button { flex: 1 1 auto; padding: 8px 10px; min-width: 0; }
+  .ad-grid,
+  .stats-row { grid-template-columns: 1fr !important; }
+  .ef-table th:nth-child(8), /* "Actif" toggle */
+  .ef-table td:nth-child(8) { display: none; }
+  .gl-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+<style id="admin-redesign">
+/* ============================================================
+   NOUVEAU DESIGN — surcharge de l'admin (angulaire + navy + lime),
+   cohérent avec les pages du site. Ajouté après le <style> principal.
+   Ne touche ni à la structure ni au JS.
+   ============================================================ */
+:root{--radius:0px}
+.login-card,.login-card input,.stat-card,.table-wrap,.filters input,.filters select,
+.topbar-right a,.topbar-right button,.act-btn,.modal,.modal textarea,.modal-actions button,
+.admin-sheet-btn,.admin-refresh-btn,.empty-state,.sport-badge,.status-badge,.topbar .badge{
+  border-radius:0;
+}
+.login-overlay{background:linear-gradient(135deg,#0A1988,#060B3C)}
+.login-card{box-shadow:0 40px 100px rgba(0,0,0,.45)}
+.login-card .login-btn{
+  background:#A5EB78;color:#060B3C;font-family:'Anton',sans-serif;
+  text-transform:uppercase;letter-spacing:.05em;
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);
+}
+.login-card input:focus{border-color:#A5EB78}
+.topbar{background:rgba(6,11,60,.95);border-bottom:1px solid rgba(165,235,120,.18)}
+.topbar .logo{color:#fff}
+.topbar .badge{background:#A5EB78;color:#060B3C}
+.topbar-right a,.topbar-right button{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.22);background:transparent}
+.topbar-right a:hover,.topbar-right button:hover{border-color:#A5EB78;color:#A5EB78}
+.btn-danger,.btn-logout{color:#ff7a7a !important;border-color:rgba(255,122,122,.6) !important}
+.btn-danger:hover,.btn-logout:hover{background:rgba(239,68,68,.14) !important;color:#ff7a7a !important}
+#accesBtn{color:#A5EB78 !important;border-color:rgba(165,235,120,.5) !important}
+#accesBtn:hover{background:rgba(165,235,120,.1) !important;border-color:#A5EB78 !important;color:#A5EB78 !important}
+.btn-primary,.admin-sheet-btn,#genHashBtn{
+  background:#A5EB78 !important;color:#060B3C !important;border:none !important;
+  border-radius:0 !important;font-weight:800;
+  clip-path:polygon(9px 0,100% 0,calc(100% - 9px) 100%,0 100%);
+}
+.filters input:focus,.filters select:focus,.modal textarea:focus{border-color:#A5EB78}
+#bcco-token-modal,#bcco-token-modal > div,#bcco-token-modal input,
+#bcco-token-modal textarea,#bcco-token-modal button,
+#accesDrawer input,#accesDrawer select,#accesDrawer textarea,#accesDrawer button,
+#genResult textarea,#revokeOutput{border-radius:0 !important}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <img src="./media/cropped-Logo-BCCO-180x180.webp" alt="BCCO"/>
+    <h2>Espace Admin</h2>
+    <p>Espace admin BCCO.</p>
+    <div class="login-err" id="loginErr">Identifiants incorrects</div>
+    <div class="login-err" id="loginLock" style="display:none">Trop de tentatives. Réessayez dans <span id="lockTimer"></span>.</div>
+    <input type="text" id="loginUser" placeholder="Identifiant" autocomplete="username"/>
+    <input type="password" id="loginCode" placeholder="Mot de passe" autocomplete="current-password"/>
+    <button class="login-btn" id="loginBtn" type="button">Se connecter</button>
+  </div>
+</div>
+
+<div class="topbar" id="topbar" style="display:none">
+  <div class="logo">
+    <img src="./media/cropped-Logo-BCCO-180x180.webp" alt="BCCO"/>
+    BCCO Admin
+    <span class="badge">Admin</span>
+  </div>
+  <div class="topbar-right">
+    <a href="index.html">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Site
+    </a>
+    <a href="index.html#faq" target="_blank" rel="noopener" title="Ouvrir la section FAQ du site dans un nouvel onglet">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Voir FAQ
+    </a>
+    <a href="aide-admin.html" target="_blank" rel="noopener" title="Guide d'utilisation de l'admin">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      Aide
+    </a>
+    <button type="button" id="accesBtn" onclick="openAccesDrawer()" style="display:none">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0112 0v1"/><circle cx="19" cy="8" r="2" fill="currentColor" stroke="none"/><line x1="19" y1="6" x2="19" y2="10"/><line x1="17" y1="8" x2="21" y2="8"/></svg>
+      Gérer les accès
+    </button>
+    <button type="button" class="btn-logout" id="logoutBtn" onclick="doLogout()">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Deconnexion
+    </button>
+  </div>
+</div>
+
+<!-- ===== DRAWER GESTION DES ACCÈS (super admin seulement) ===== -->
+<div id="accesOverlay" onclick="closeAccesDrawer()" style="display:none;position:fixed;inset:0;background:rgba(11,17,48,.5);z-index:300"></div>
+<div id="accesDrawer" style="display:none;position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);background:#fff;z-index:301;overflow-y:auto;box-shadow:-8px 0 40px rgba(10,25,136,.18);padding:28px 28px 40px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <h3 style="font-size:1.1rem;margin:0">Gestion des accès admin</h3>
+    <button onclick="closeAccesDrawer()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--muted);font-size:20px;line-height:1">&times;</button>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6">
+    Les identifiants sont stockés sous forme de hash dans <code>data/admins.json</code>.
+    Générez un hash ci-dessous, copiez l’entrée dans le fichier, puis redéployez.
+  </p>
+
+  <!-- Utilisateurs actuels -->
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Utilisateurs configurés</div>
+  <div id="accesUserList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+    <div style="font-size:13px;color:var(--muted);font-style:italic">Chargement…</div>
+  </div>
+  <div id="revokeResult" style="display:none;margin-bottom:20px">
+    <div style="font-size:12px;font-weight:600;color:#b91c1c;margin-bottom:6px">✓ Accès révoqué — nouveau contenu à copier dans <code>data/admins.json</code> :</div>
+    <textarea id="revokeOutput" readonly rows="5"
+      style="width:100%;border-radius:8px;border:1px solid #fca5a5;padding:10px;font-size:11px;font-family:monospace;resize:none;background:#fff5f5;outline:none;cursor:text"
+      onclick="this.select()"></textarea>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">Copiez → ouvrez <code>data/admins.json</code> → remplacez le contenu → git push.</div>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin-bottom:20px"/>
+
+  <!-- Générateur de hash -->
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px">Générer un nouvel accès</div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Identifiant</label>
+      <input id="genUser" type="text" placeholder="ex: marie.dupont" autocomplete="off"
+        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-size:13px;font-family:inherit;outline:none"/>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Mot de passe</label>
+      <input id="genPass" type="password" placeholder="Choisir un mot de passe" autocomplete="off"
+        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-size:13px;font-family:inherit;outline:none"/>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Rôle</label>
+      <select id="genRole" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-size:13px;font-family:inherit;outline:none;background:#fff">
+        <option value="admin">Admin (peut modifier, pas gérer les accès)</option>
+        <option value="super">Super admin (accès complet)</option>
+      </select>
+    </div>
+    <button id="genHashBtn" onclick="genHashUI()"
+      style="padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#0A1988;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:inherit">
+      Générer le hash
+    </button>
+    <div id="genResult" style="display:none">
+      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Entrée à copier dans <code>data/admins.json</code> :</div>
+      <textarea id="genOutput" readonly rows="5"
+        style="width:100%;border-radius:8px;border:1px solid var(--line);padding:10px;font-size:11px;font-family:monospace;resize:none;background:#f7f7fa;outline:none;cursor:text"
+        onclick="this.select()"></textarea>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Cliquez sur la zone pour tout sélectionner, puis copiez.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;font-size:12px;color:#92400e;line-height:1.6">
+    <strong>Comment ajouter :</strong> Générez le hash → copiez l’entrée → ouvrez <code>data/admins.json</code> → ajoutez dans le tableau → git push.  </div>
+</div>
+
+<div class="dashboard" id="dashboard" style="display:none">  <h3 class="section-title" style="margin-top:20px">Annonce du site</h3>
+  <p class="section-sub">
+    Bandeau affiché en haut de toutes les pages publiques (sous la barre de navigation T.Bar, au-dessus du bandeau "prochain match" s'il est présent).
+    Idéal pour communiquer une info ponctuelle : jour férié, ouverture des inscriptions, fin de saison, fermeture exceptionnelle, etc.
+  </p>
+  <div id="annonceSlot">
+    <div class="empty-state"><p style="font-size:13px">Chargement de l'éditeur d'annonce…</p></div>
+  </div>
+
+  <h3 class="section-title" style="margin-top:32px">Réservations des terrains</h3>
+  <p class="section-sub">
+    Gestion des réservations payantes de terrains à la Halle Marie-Amélie Le Fur.
+    Les créneaux d'ouverture, tarifs et blocages sont pilotés via les fichiers CSV du repo.
+    <strong>Paiement Stripe à brancher</strong> (voir onboarding).
+  </p>
+
+  <!-- Stats rapides -->
+  <div class="stats-row" id="rvStatsRow">
+    <div class="stat-card">
+      <span class="stat-label">Réservations à venir</span>
+      <span class="stat-val" id="rvStatUpcoming">—</span>
+      <span class="stat-sub">7 prochains jours</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Chiffre du mois</span>
+      <span class="stat-val" id="rvStatRevenue">—</span>
+      <span class="stat-sub">réservations confirmées</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Licenciés enregistrés</span>
+      <span class="stat-val" id="rvStatLicencies">—</span>
+      <span class="stat-sub">éligibles au tarif réduit</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Créneaux bloqués</span>
+      <span class="stat-val" id="rvStatBlocked">—</span>
+      <span class="stat-sub">événements club à venir</span>
+    </div>
+  </div>
+
+  <div class="admin-toolbar">
+    <a id="openSheetRvConfigBtn" href="#" target="_blank" rel="noopener" class="admin-sheet-btn">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
+      Tarifs & config
+    </a>
+    <a id="openSheetRvSlotsBtn" href="#" target="_blank" rel="noopener" class="admin-sheet-btn" style="background:#e6ecff;color:var(--secondary)">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Créneaux d'ouverture
+    </a>
+    <a id="openSheetRvBlockedBtn" href="#" target="_blank" rel="noopener" class="admin-sheet-btn" style="background:#fff4d6;color:#92400e">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      Bloquer un créneau
+    </a>
+    <a id="openSheetRvLicenciesBtn" href="#" target="_blank" rel="noopener" class="admin-sheet-btn" style="background:#e0f7e7;color:#166534">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Licenciés (tarif réduit)
+    </a>
+    <button type="button" id="rvExportCsvBtn" class="admin-refresh-btn">
+      <svg class="i" width="14" height="14" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Export CSV (compta)
+    </button>
+    <button type="button" id="refreshRvBtn" class="admin-refresh-btn">
+      <svg class="i" width="14" height="14" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Recharger
+    </button>
+    <span id="rvStatus" class="admin-status"></span>
+  </div>
+
+  <!-- Table réservations à venir -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Horaire</th>
+          <th>Durée</th>
+          <th>Client</th>
+          <th>Contact</th>
+          <th>Type</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rvTableBody">
+        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">Aucune réservation pour l'instant. Le système de paiement n'est pas encore branché.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" style="margin-bottom:30px">
+    <p style="font-size:13px">
+      <strong>Pour activer le paiement Stripe :</strong><br>
+      1. Créer un compte Cloudflare (gratuit) + Resend (emails, gratuit)<br>
+      2. Fournir les clés Stripe (mode test d'abord)<br>
+      3. Le Worker backend sera déployé et écrira dans <code>data/reservations/reservations.csv</code>.
+    </p>
+  </div>
+
+  <!-- ============ ACTUALITES (pilotees depuis data/actualites.csv) ============ -->
+  <h3 class="section-title" style="margin-top:32px">Actualites du site</h3>
+  <p class="section-sub">
+    Les actualités affichées sur la page d'accueil sont lues depuis <code>data/actualites.csv</code>.
+    Pour ajouter, modifier ou supprimer une actu : cliquer sur le bouton ci-dessous, éditer sur GitHub, committer.
+  </p>
+
+  <div id="actusToolbar" class="admin-toolbar">
+    <a id="openSheetBtn" href="#" target="_blank" rel="noopener" class="admin-sheet-btn">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
+      Modifier data/actualites.csv sur GitHub
+    </a>
+    <button id="refreshActusBtn" type="button" class="admin-refresh-btn">
+      <svg class="i" width="14" height="14" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Recharger
+    </button>
+    <span id="actusStatus" class="admin-status"></span>
+  </div>
+
+  <div id="actusPreview" class="admin-actus-grid"></div>
+  <div class="empty-state" id="actusEmpty" style="display:none">
+    <p>Aucune actualité trouvée. Ajoute une ligne dans <code>data/actualites.csv</code> sur GitHub.</p>
+  </div>
+
+  <!-- ============ RENCONTRES Top 12 & N2 ============ -->
+  <h3 class="section-title" style="margin-top:32px">Rencontres des équipes (Top 12 & Nationale 2)</h3>
+  <p class="section-sub">
+    Affiche les prochains matchs dans la section Equipes de la page d'accueil.
+    Modifiable directement dans <code>data/rencontres.csv</code> sur GitHub.
+  </p>
+
+  <div class="admin-toolbar">
+    <a id="openSheetRencontresBtn" href="#" target="_blank" rel="noopener" class="admin-sheet-btn">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
+      Modifier data/rencontres.csv sur GitHub
+    </a>
+    <button id="refreshRencontresBtn" type="button" class="admin-refresh-btn">
+      <svg class="i" width="14" height="14" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Recharger
+    </button>
+    <span id="rencontresStatus" class="admin-status"></span>
+  </div>
+
+  <div class="admin-rencontres-grid">
+    <div>
+      <div class="admin-team-header">
+        <span class="admin-team-dot" style="background:var(--gold-2)"></span>
+        Équipe 1 · Top 12
+      </div>
+      <div id="rencontresTop12List" class="admin-matches-list"></div>
+    </div>
+    <div>
+      <div class="admin-team-header">
+        <span class="admin-team-dot" style="background:#f59e0b"></span>
+        Équipe 2 · Nationale 2
+      </div>
+      <div id="rencontresN2List" class="admin-matches-list"></div>
+    </div>
+  </div>
+
+  <!-- ============ EFFECTIF Top 12 (photos + titres) ============ -->
+  <h3 class="section-title" style="margin-top:32px">Effectif Top 12 — Photos & titres</h3>
+  <p class="section-sub">
+    Modifie les photos et les titres affichés sur la home (section "L'effectif").
+    Clic sur une photo pour la remplacer (recadrage automatique en 900×1200 portrait 3:4) — édition du titre directement dans la zone texte.
+    Toutes les modifications sont publiées en un seul clic via <code>data/palmares.csv</code>.
+  </p>
+  <div id="top12Slot">
+    <div class="empty-state"><p style="font-size:13px">Chargement de l'éditeur Top 12…</p></div>
+  </div>
+
+  <!-- ============ CLASSEMENT Top 12 ============ -->
+  <h3 class="section-title" style="margin-top:32px">Classement Top 12</h3>
+  <p class="section-sub">
+    Le classement affiché sur la page dédiée est lu depuis <code>data/classement.csv</code>.
+    Pour modifier les points ou les positions : éditer le fichier sur GitHub.
+  </p>
+
+  <div class="admin-toolbar">
+    <a id="openSheetClassementBtn" href="https://github.com/theomeurr/ChamblyBad/edit/main/data/classement.csv" target="_blank" rel="noopener" class="admin-sheet-btn">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
+      Modifier data/classement.csv sur GitHub
+    </a>
+  </div>
+
+</div>
+
+<script src="js/admin-github.js?v=20260523a"></script>
+<script src="js/admin.js?v=20260523a"></script>
+<script src="js/admin-actus.js?v=20260523a"></script>
+<script src="js/admin-annonce.js?v=20260524a"></script>
+<script src="js/admin-top12.js?v=20260525a"></script>
+<script src="js/admin-effectifs.js?v=20260523a"></script>
+<script src="js/admin-galerie.js?v=20260523a"></script>
+<script src="js/admin-image-converter.js?v=20260523a"></script>
+<script src="js/admin-import.js?v=20260523a"></script>
+<script src="js/admin-dashboard.js?v=20260523a"></script>
+<script src="js/admin-diagnostic.js?v=20260523a"></script>
+</body>
+</html>
