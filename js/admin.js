@@ -226,7 +226,7 @@ async function genHashUI() {
 /* =================================================================
    APERCU RESERVATIONS TERRAINS — lecture CSV (lecture seule pour l'instant)
 ================================================================== */
-const GH = 'https://github.com/theomeurr/ChamblyBad/edit/main/';
+const GH = 'https://github.com/theomeurr/New-ChamblyBad/edit/main/';
 
 const RV_ADMIN_CONFIG = {
   // Liens d'édition → ouvrent le fichier CSV sur GitHub
@@ -446,7 +446,7 @@ async function fetchCSVAdmin(url){
    APERCU RENCONTRES (Top 12 & N2) — lecture seule
 ================================================================== */
 const RENCONTRES_ADMIN_CONFIG = {
-  sheetEditUrl: 'https://github.com/theomeurr/ChamblyBad/edit/main/data/rencontres.csv',
+  sheetEditUrl: 'https://github.com/theomeurr/New-ChamblyBad/edit/main/data/rencontres.csv',
   csvUrl: '',
   csvFallback: 'data/rencontres.csv'
 };
@@ -561,7 +561,7 @@ async function loadRencontresPreview(){
    renseigne l'URL d'EDITION (pas la CSV publiee) ci-dessous :
 ================================================================== */
 const ACTUS_ADMIN_CONFIG = {
-  sheetEditUrl: 'https://github.com/theomeurr/ChamblyBad/edit/main/data/actualites.csv',
+  sheetEditUrl: 'https://github.com/theomeurr/New-ChamblyBad/edit/main/data/actualites.csv',
   actusCsvUrl: '',
   actusCsvFallback: 'data/actualites.csv'
 };

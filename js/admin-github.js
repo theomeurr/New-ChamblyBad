@@ -22,7 +22,7 @@
   'use strict';
 
   const REPO_OWNER  = 'theomeurr';
-  const REPO_NAME   = 'ChamblyBad';
+  const REPO_NAME   = 'New-ChamblyBad';
   const REPO_BRANCH = 'main';
   const API_BASE    = 'https://api.github.com';
   const TOKEN_KEY   = 'bcco_gh_token_v1';

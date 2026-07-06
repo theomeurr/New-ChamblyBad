@@ -43,10 +43,11 @@
       dupKey: row => `${row.pool}|${row.team}`
     },
     {
-      file: 'data/palmares.csv',
-      label: 'Palmarès',
-      required: ['equipe', 'nom', 'prenom', 'nationalite', 'palmares', 'headline'],
-      dupKey: row => `${row.equipe}|${row.nom}|${row.prenom}`
+      file: 'data/top12.csv',
+      label: 'Effectif Top 12',
+      required: ['nom', 'genre', 'nationalite', 'categorie', 'description', 'photo', 'lien'],
+      imageFields: ['photo'],
+      dupKey: row => `${row.nom}`
     }
   ];
 
