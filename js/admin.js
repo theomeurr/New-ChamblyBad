@@ -80,7 +80,9 @@ window.generateHash = async function(user, pass) {
 };
 
 if (sessionStorage.getItem('bcco_admin') === '1') {
-  showAdmin();
+  // Différé d'un tick : showAdmin() appelle initReservationsPreview() qui utilise
+  // des const définies plus bas dans ce fichier (évite une erreur TDZ au rechargement).
+  setTimeout(showAdmin, 0);
 } else if (isLockedOut()) {
   startLockTimer();
 } else {
@@ -126,7 +128,7 @@ function showAdmin() {
   if (sessionStorage.getItem('bcco_role') === 'super') {
     document.getElementById('accesBtn').style.display = '';
   }
-  initActusPreview(); initRencontresPreview(); initReservationsPreview();
+  initActusPreview(); initReservationsPreview();
 }
 
 function openAccesDrawer() {
