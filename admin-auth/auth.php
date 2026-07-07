@@ -41,6 +41,25 @@ function create_admin(string $label, string $password, string $role = 'admin'): 
     $stmt->execute([$label, $hash, $role]);
 }
 
+function list_admins(): array {
+    return db()->query('SELECT id, label, role, created_at FROM admins ORDER BY created_at ASC')->fetchAll();
+}
+
+function count_super_admins(): int {
+    return (int) db()->query("SELECT COUNT(*) FROM admins WHERE role = 'super'")->fetchColumn();
+}
+
+function revoke_admin(int $id): void {
+    $stmt = db()->prepare('DELETE FROM admins WHERE id = ?');
+    $stmt->execute([$id]);
+}
+
+function find_admin_by_id(int $id) {
+    $stmt = db()->prepare('SELECT * FROM admins WHERE id = ?');
+    $stmt->execute([$id]);
+    return $stmt->fetch();
+}
+
 /**
  * Vérifie les identifiants. Retourne la ligne admin en cas de succès,
  * ou une chaîne d'erreur ('locked' | 'invalid') sinon.

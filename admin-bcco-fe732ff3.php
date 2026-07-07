@@ -435,6 +435,12 @@ tr:hover{background:rgba(165,235,120,.04)}
       <svg class="i" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
       Aide
     </a>
+    <?php if ($currentAdmin['role'] === 'super'): ?>
+    <a href="admin-auth/manage_users.php">
+      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0112 0v1"/><circle cx="19" cy="8" r="2" fill="currentColor" stroke="none"/><line x1="19" y1="6" x2="19" y2="10"/><line x1="17" y1="8" x2="21" y2="8"/></svg>
+      Gérer les accès
+    </a>
+    <?php endif; ?>
     <a href="admin-auth/logout.php" class="btn-logout">
       <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Deconnexion
@@ -442,8 +448,7 @@ tr:hover{background:rgba(165,235,120,.04)}
   </div>
 </div>
 
-<!-- Ancien panneau "Gestion des accès" (data/admins.json) retiré : les comptes admin
-     vivent désormais dans MySQL (table admins), gérés via admin-auth/. -->
+<!-- Gestion des accès : voir admin-auth/manage_users.php (réservé au super-admin) -->
 
 <div class="dashboard" id="dashboard">
   <h3 class="section-title" style="margin-top:20px">Annonce du site</h3>
