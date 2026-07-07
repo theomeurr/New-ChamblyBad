@@ -1,0 +1,40 @@
+name: Deploy to o2switch (sandbox)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: o2switch-sandbox-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_SERVER }}
+          username: ${{ secrets.O2SWITCH_FTP_USERNAME }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          # Le compte FTP est scopé au dossier du sous-domaine sandbox,
+          # donc la racine FTP correspond déjà à la racine du site.
+          local-dir: ./
+          server-dir: ./
+          # Ne jamais supprimer les fichiers absents du repo (ex: admin-auth/config.php,
+          # qui n'est jamais commité et doit rester intact sur le serveur).
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            node_modules/**
+            .claude/**
+            .vscode/**
+            scripts/**
+            docs/**
+            **/.DS_Store
