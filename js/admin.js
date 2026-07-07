@@ -5,7 +5,7 @@ initActusPreview();
 initReservationsPreview();
 
 /* =================================================================
-   APERCU RESERVATIONS TERRAINS — lecture CSV (lecture seule pour l'instant)
+   APERCU RESERVATIONS TERRAINS — données réelles (MySQL) + config CSV
 ================================================================== */
 const GH = 'https://github.com/theomeurr/New-ChamblyBad/edit/main/';
 
@@ -15,19 +15,20 @@ const RV_ADMIN_CONFIG = {
   sheetSlotsUrl:     GH + 'data/reservations/creneaux_ouverts.csv',
   sheetBlockedUrl:   GH + 'data/reservations/creneaux_bloques.csv',
   sheetLicenciesUrl: GH + 'data/reservations/licencies.csv',
-  sheetResUrl:       GH + 'data/reservations/reservations.csv',
   // Pas de source remote — données locales uniquement
   configPubUrl:      '',
   slotsPubUrl:       '',
   blockedPubUrl:     '',
   licenciesPubUrl:   '',
-  reservationsPubUrl:'',
-  // Fichiers CSV locaux (source unique)
-  configCsv:       'data/reservations/config.csv',
-  blockedCsv:      'data/reservations/creneaux_bloques.csv',
-  reservationsCsv: 'data/reservations/reservations.csv',
-  licenciesCsv:    'data/reservations/licencies.csv'
+  // Fichiers CSV locaux (config/créneaux/licenciés — changent rarement)
+  configCsv:    'data/reservations/config.csv',
+  blockedCsv:   'data/reservations/creneaux_bloques.csv',
+  licenciesCsv: 'data/reservations/licencies.csv'
+  // Les réservations elles-mêmes vivent en MySQL (voir admin-auth/reservations_list.php),
+  // plus dans data/reservations/reservations.csv (obsolète, laissé pour historique).
 };
+
+let RV_LAST_RESERVATIONS = []; // cache pour l'export CSV
 
 function initReservationsPreview(){
   const cfgBtn = document.getElementById('openSheetRvConfigBtn');
@@ -52,10 +53,6 @@ async function loadReservationsPreview(){
   const statusEl = document.getElementById('rvStatus');
   if (statusEl) statusEl.textContent = 'Chargement...';
 
-  const resSources = [];
-  if (RV_ADMIN_CONFIG.reservationsPubUrl) resSources.push(RV_ADMIN_CONFIG.reservationsPubUrl);
-  if (RV_ADMIN_CONFIG.reservationsCsv) resSources.push(RV_ADMIN_CONFIG.reservationsCsv);
-
   const blkSources = [];
   if (RV_ADMIN_CONFIG.blockedPubUrl) blkSources.push(RV_ADMIN_CONFIG.blockedPubUrl);
   if (RV_ADMIN_CONFIG.blockedCsv) blkSources.push(RV_ADMIN_CONFIG.blockedCsv);
@@ -72,19 +69,29 @@ async function loadReservationsPreview(){
     return [];
   }
 
+  async function loadReservationsFromDb(){
+    try {
+      const r = await fetch('admin-auth/reservations_list.php?_=' + Date.now(), { credentials: 'same-origin', cache: 'no-cache' });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+      return data.reservations || [];
+    } catch(e) { console.warn('Réservations inaccessibles :', e); return []; }
+  }
+
   const [reservations, blocked, licencies] = await Promise.all([
-    loadAny(resSources),
+    loadReservationsFromDb(),
     loadAny(blkSources),
     loadAny(licSources)
   ]);
 
+  RV_LAST_RESERVATIONS = reservations;
   renderRvStats(reservations, blocked, licencies);
   renderRvTable(reservations);
 
   if (statusEl){
     statusEl.textContent = reservations.length
       ? reservations.length + ' réservation(s) chargée(s)'
-      : 'Aucune réservation (normal, le paiement n\'est pas encore branché)';
+      : 'Aucune réservation pour le moment';
   }
 }
 
@@ -161,7 +168,7 @@ function renderRvTable(reservations){
   body.innerHTML = upcoming.map(r => `
     <tr>
       <td>${esc(fmtDate(r.date))}</td>
-      <td>${esc(r.heure_debut||'—')} → ${esc(r.heure_fin||'—')}</td>
+      <td>${esc((r.heure_debut||'').slice(0,5)||'—')} → ${esc((r.heure_fin||'').slice(0,5)||'—')}</td>
       <td>${esc(fmtDuree(r.duree))}</td>
       <td class="name-col">${esc((r.prenom||'') + ' ' + (r.nom||''))}</td>
       <td class="email-col">${esc(r.email||'')}<br>${esc(r.telephone||'')}</td>
@@ -171,30 +178,50 @@ function renderRvTable(reservations){
       <td class="price-col">${esc(r.montant||'0')} €</td>
       <td><span class="status-badge ${/confirmed/i.test(r.statut||'') ? 'confirmee' : 'en-attente'}">${esc(r.statut||'—')}</span></td>
       <td class="actions-col">
-        <button type="button" class="act-btn cancel" disabled title="Disponible après branchement Stripe">Annuler</button>
+        <button type="button" class="act-btn cancel" onclick="cancelReservation(${Number(r.id)})">Annuler</button>
       </td>
     </tr>
   `).join('');
 }
 
+async function cancelReservation(id){
+  if (!confirm('Annuler cette réservation ? Un remboursement Stripe sera tenté si un paiement a été encaissé.')) return;
+  try {
+    const r = await fetch('admin-auth/reservations_cancel.php', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+    const msg = data.refunded
+      ? 'Réservation annulée et remboursée.'
+      : (data.refund_error
+        ? 'Réservation annulée. Le remboursement a échoué : ' + data.refund_error
+        : 'Réservation annulée (aucun paiement encaissé à rembourser).');
+    alert(msg);
+    loadReservationsPreview();
+  } catch(e) {
+    alert('Erreur : ' + e.message);
+  }
+}
+
 function exportReservationsCsv(){
-  // Récupère la source CSV actuelle et propose le téléchargement
-  const url = RV_ADMIN_CONFIG.reservationsPubUrl || RV_ADMIN_CONFIG.reservationsCsv;
-  if (!url){ alert('Aucune source de réservations configurée.'); return; }
+  if (!RV_LAST_RESERVATIONS.length){ alert('Aucune réservation à exporter.'); return; }
+  const headers = ['reference','date','heure_debut','heure_fin','duree','nom','prenom','email','telephone','licencie','numero_licence','montant','statut','stripe_payment_intent','created_at'];
+  const csv = (window.BccoGithub && BccoGithub.serializeCSV)
+    ? BccoGithub.serializeCSV(RV_LAST_RESERVATIONS, headers)
+    : [headers.join(',')].concat(RV_LAST_RESERVATIONS.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','))).join('\n');
   const ts = new Date().toISOString().slice(0,10);
-  fetchCSVAdmin(url).then(text => {
-    const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `reservations-bcco-${ts}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }).catch(e => {
-    console.error(e);
-    alert('Export impossible : ' + e.message);
-  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `reservations-bcco-${ts}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 /* =================================================================

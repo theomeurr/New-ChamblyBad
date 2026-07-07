@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 
 if ($currentAdmin['role'] !== 'super') {
     http_response_code(403);
-    echo json_encode(['error' => 'Accès réservé au super-admin.']);
+    ob_clean(); echo json_encode(['error' => 'Accès réservé au super-admin.']);
     exit;
 }
 
@@ -17,7 +17,7 @@ try {
     [$status, $data] = gh_call('GET', $url);
     if ($status !== 200 || !is_array($data)) {
         http_response_code($status);
-        echo json_encode(['error' => $data['message'] ?? ('HTTP ' . $status)]);
+        ob_clean(); echo json_encode(['error' => $data['message'] ?? ('HTTP ' . $status)]);
         exit;
     }
     $commits = array_map(function ($c) {
@@ -28,8 +28,8 @@ try {
             'sha'     => substr($c['sha'] ?? '', 0, 7),
         ];
     }, $data);
-    echo json_encode(['commits' => $commits]);
+    ob_clean(); echo json_encode(['commits' => $commits]);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    ob_clean(); echo json_encode(['error' => $e->getMessage()]);
 }

@@ -30,11 +30,9 @@ function gh_call(string $method, string $url, ?array $body = null): array {
     $response = curl_exec($ch);
     if ($response === false) {
         $err = curl_error($ch);
-        curl_close($ch);
         throw new RuntimeException('Erreur réseau GitHub : ' . $err);
     }
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
     return [$status, json_decode($response, true)];
 }
 

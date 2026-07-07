@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 
+// Mise en tampon dès le tout premier fichier requis par n'importe quel endpoint :
+// un warning/deprecation PHP imprévu ne doit jamais pouvoir se glisser avant un
+// echo json_encode(...) et casser le JSON côté client. Chaque endpoint JSON fait
+// ob_clean() juste avant sa sortie finale pour jeter tout ce qui aurait fuité.
+if (!ob_get_level()) ob_start();
+
 require_once __DIR__ . '/config.php';
 
 const MAX_ATTEMPTS = 5;

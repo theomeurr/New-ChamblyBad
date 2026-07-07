@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Réservation confirmée — BCCO Badminton Club Chambly Oise</title>
+<link rel="icon" type="image/webp" href="./media/cropped-Logo-BCCO-180x180.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  *{box-sizing:border-box}
+  body{font-family:'Open Sans',system-ui,sans-serif;background:#F5F7FB;color:#0B1130;line-height:1.6;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:#fff;border-radius:20px;max-width:480px;width:100%;padding:44px 36px;text-align:center;box-shadow:0 30px 80px rgba(10,25,136,.14)}
+  .icon{width:64px;height:64px;border-radius:50%;background:rgba(165,235,120,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+  h1{font-family:'Anton',sans-serif;font-weight:400;font-size:1.8rem;text-transform:uppercase;margin:0 0 12px}
+  p{color:#5A6380;font-size:14.5px;margin:0 0 24px}
+  .recap{background:#F5F7FB;border-radius:14px;padding:20px;text-align:left;font-size:13.5px;display:none}
+  .recap.show{display:block}
+  .recap div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(10,25,136,.08)}
+  .recap div:last-child{border:none}
+  .recap span:first-child{color:#5A6380;font-weight:600}
+  .recap span:last-child{font-weight:700;color:#0B1130}
+  .back{display:inline-block;margin-top:24px;color:#0A1988;font-weight:700;text-decoration:none;font-size:13.5px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1 id="rm-title">Merci !</h1>
+    <p id="rm-text">Votre paiement a bien été reçu. Voici le récapitulatif de votre réservation.</p>
+    <div class="recap" id="rm-recap">
+      <div><span>Référence</span><span id="rm-ref">—</span></div>
+      <div><span>Date</span><span id="rm-date">—</span></div>
+      <div><span>Créneau</span><span id="rm-heure">—</span></div>
+      <div><span>Montant</span><span id="rm-montant">—</span></div>
+    </div>
+    <a class="back" href="reservations.html">← Retour aux réservations</a>
+  </div>
+
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var sessionId = params.get('session_id');
+  var titleEl = document.getElementById('rm-title');
+  var textEl = document.getElementById('rm-text');
+  var recapEl = document.getElementById('rm-recap');
+
+  if (!sessionId) {
+    titleEl.textContent = 'Réservation';
+    textEl.textContent = "Aucune référence de paiement trouvée dans le lien. Si vous venez de payer, vérifiez vos emails ou contactez le club.";
+    return;
+  }
+
+  function fmtDate(iso){
+    var d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('fr-FR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  }
+
+  function render(data, attempt){
+    if (data.statut === 'confirmed'){
+      document.getElementById('rm-ref').textContent = data.reference;
+      document.getElementById('rm-date').textContent = fmtDate(data.date);
+      document.getElementById('rm-heure').textContent = data.heure_debut.slice(0,5) + ' → ' + data.heure_fin.slice(0,5);
+      document.getElementById('rm-montant').textContent = Number(data.montant).toFixed(2).replace('.', ',') + ' €';
+      recapEl.classList.add('show');
+      return;
+    }
+    // Le webhook Stripe peut arriver quelques secondes après la redirection.
+    if (attempt < 4){
+      textEl.textContent = 'Confirmation du paiement en cours…';
+      setTimeout(function(){ load(attempt+1); }, 1500);
+    } else {
+      textEl.textContent = "Votre paiement est en cours de traitement. Vous recevrez une confirmation sous peu — contactez le club si rien ne se passe d'ici quelques minutes.";
+    }
+  }
+
+  function load(attempt){
+    fetch('reservations-api/session_status.php?session_id=' + encodeURIComponent(sessionId))
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data.error){ textEl.textContent = data.error; return; }
+        render(data, attempt);
+      })
+      .catch(function(){ textEl.textContent = "Impossible de vérifier le statut pour l'instant."; });
+  }
+
+  load(0);
+})();
+</script>
+</body>
+</html>

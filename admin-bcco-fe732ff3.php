@@ -482,8 +482,13 @@ tr:hover{background:rgba(165,235,120,.04)}
   <h3 class="section-title" style="margin-top:32px">Réservations des terrains</h3>
   <p class="section-sub">
     Gestion des réservations payantes de terrains à la Halle Marie-Amélie Le Fur.
-    Les créneaux d'ouverture, tarifs et blocages sont pilotés via les fichiers CSV du repo.
-    <strong>Paiement Stripe à brancher</strong> (voir onboarding).
+    Les créneaux d'ouverture, tarifs et blocages sont pilotés via les fichiers CSV du repo ;
+    les réservations elles-mêmes vivent en base de données.
+    <?php if (!defined('STRIPE_SECRET_KEY') || STRIPE_SECRET_KEY === ''): ?>
+      <strong>Paiement Stripe : clés pas encore renseignées</strong> (voir onboarding ci-dessous).
+    <?php else: ?>
+      <strong style="color:var(--gold-2)">Paiement Stripe actif</strong> (mode test tant que les clés commencent par <code>sk_test_</code>).
+    <?php endif; ?>
   </p>
 
   <!-- Stats rapides -->
@@ -546,19 +551,23 @@ tr:hover{background:rgba(165,235,120,.04)}
         </tr>
       </thead>
       <tbody id="rvTableBody">
-        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">Aucune réservation pour l'instant. Le système de paiement n'est pas encore branché.</td></tr>
+        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">Chargement…</td></tr>
       </tbody>
     </table>
   </div>
 
+  <?php if (!defined('STRIPE_SECRET_KEY') || STRIPE_SECRET_KEY === ''): ?>
   <div class="empty-state" style="margin-bottom:30px">
     <p style="font-size:13px">
-      <strong>Pour activer le paiement Stripe :</strong><br>
-      1. Créer un compte Cloudflare (gratuit) + Resend (emails, gratuit)<br>
-      2. Fournir les clés Stripe (mode test d'abord)<br>
-      3. Le Worker backend sera déployé et écrira dans <code>data/reservations/reservations.csv</code>.
+      <strong>Pour activer le paiement en ligne :</strong><br>
+      1. Créer un compte Stripe (les clés de test sont disponibles immédiatement, avant même la vérification du compte).<br>
+      2. Dans <code>admin-auth/config.php</code> sur le serveur, renseigner <code>STRIPE_SECRET_KEY</code> (clé secrète, <code>sk_test_...</code> d'abord).<br>
+      3. Créer un endpoint webhook sur Stripe (Developers → Webhooks → Add endpoint) pointant vers <code>/reservations-api/stripe_webhook.php</code>, événements <code>checkout.session.completed</code> et <code>checkout.session.expired</code> → copier le secret généré (<code>whsec_...</code>) dans <code>STRIPE_WEBHOOK_SECRET</code>.<br>
+      4. (Optionnel mais recommandé) Créer un site Cloudflare Turnstile (CAPTCHA anti-robot) et renseigner <code>TURNSTILE_SECRET_KEY</code> côté serveur + la clé publique dans <code>js/rd-reservations.js</code> (constante <code>TURNSTILE_SITE_KEY</code>).<br>
+      Le formulaire de réservation, le calcul des tarifs et l'écriture en base (table <code>reservations</code>) sont déjà en place — il ne manque que ces clés.
     </p>
   </div>
+  <?php endif; ?>
 
   <!-- ============ ACTUALITES (pilotees depuis data/actualites.csv) ============ -->
   <h3 class="section-title" style="margin-top:32px">Actualites du site</h3>

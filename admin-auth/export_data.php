@@ -51,5 +51,6 @@ $filename = 'bcco-export-' . date('Y-m-d_His') . '.zip';
 header('Content-Type: application/zip');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Content-Length: ' . filesize($tmpZip));
+ob_clean(); // le zip est un flux binaire : tout warning bufferé avant ce point le corromprait
 readfile($tmpZip);
 unlink($tmpZip);

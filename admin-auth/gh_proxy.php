@@ -16,22 +16,22 @@ try {
         $path = $_GET['path'] ?? '';
         if ($path === '') {
             http_response_code(400);
-            echo json_encode(['error' => 'path requis']);
+            ob_clean(); echo json_encode(['error' => 'path requis']);
             exit;
         }
         [$status, $data] = gh_call('GET', gh_contents_url($path) . '?ref=' . GH_REPO_BRANCH);
         if ($status === 404) {
             http_response_code(404);
-            echo json_encode(['error' => 'Fichier introuvable : ' . $path]);
+            ob_clean(); echo json_encode(['error' => 'Fichier introuvable : ' . $path]);
             exit;
         }
         if ($status !== 200) {
             http_response_code($status);
-            echo json_encode(['error' => $data['message'] ?? ('HTTP ' . $status)]);
+            ob_clean(); echo json_encode(['error' => $data['message'] ?? ('HTTP ' . $status)]);
             exit;
         }
         $bytes = base64_decode(str_replace("\n", '', $data['content']));
-        echo json_encode(['content' => $bytes, 'sha' => $data['sha'], 'path' => $path]);
+        ob_clean(); echo json_encode(['content' => $bytes, 'sha' => $data['sha'], 'path' => $path]);
         exit;
     }
 
@@ -44,7 +44,7 @@ try {
 
         if ($path === '' || $content === null) {
             http_response_code(400);
-            echo json_encode(['error' => 'path et content requis']);
+            ob_clean(); echo json_encode(['error' => 'path et content requis']);
             exit;
         }
 
@@ -66,18 +66,18 @@ try {
 
         if ($status < 200 || $status >= 300) {
             http_response_code($status);
-            echo json_encode(['error' => $data['message'] ?? ('HTTP ' . $status)]);
+            ob_clean(); echo json_encode(['error' => $data['message'] ?? ('HTTP ' . $status)]);
             exit;
         }
 
         $rawUrl = 'https://raw.githubusercontent.com/' . GH_REPO_OWNER . '/' . GH_REPO_NAME . '/' . GH_REPO_BRANCH . '/' . $path;
-        echo json_encode(['sha' => $data['content']['sha'] ?? null, 'rawUrl' => $rawUrl, 'localUrl' => './' . $path, 'path' => $path]);
+        ob_clean(); echo json_encode(['sha' => $data['content']['sha'] ?? null, 'rawUrl' => $rawUrl, 'localUrl' => './' . $path, 'path' => $path]);
         exit;
     }
 
     http_response_code(405);
-    echo json_encode(['error' => 'Méthode non supportée']);
+    ob_clean(); echo json_encode(['error' => 'Méthode non supportée']);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    ob_clean(); echo json_encode(['error' => $e->getMessage()]);
 }
