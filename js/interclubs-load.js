@@ -70,20 +70,53 @@
   }
 
   // -------------------------------------------------- JOURNÉES
+  // Parse une date FR type « 19 sept. 2026 » → objet Date (ou null)
+  function parseFrDate(s) {
+    var p = String(s || '').toLowerCase().replace(/\./g, ' ').split(/\s+/).filter(Boolean);
+    if (p.length < 3) return null;
+    var day = parseInt(p[0], 10), year = parseInt(p[2], 10), w = p[1], mo;
+    if (w.indexOf('janv') === 0) mo = 0;
+    else if (w.indexOf('fév') === 0 || w.indexOf('fev') === 0) mo = 1;
+    else if (w.indexOf('mars') === 0) mo = 2;
+    else if (w.indexOf('avr') === 0) mo = 3;
+    else if (w.indexOf('mai') === 0) mo = 4;
+    else if (w.indexOf('juin') === 0) mo = 5;
+    else if (w.indexOf('juil') === 0) mo = 6;
+    else if (w.indexOf('aoû') === 0 || w.indexOf('aou') === 0) mo = 7;
+    else if (w.indexOf('sept') === 0) mo = 8;
+    else if (w.indexOf('oct') === 0) mo = 9;
+    else if (w.indexOf('nov') === 0) mo = 10;
+    else if (w.indexOf('déc') === 0 || w.indexOf('dec') === 0) mo = 11;
+    if (mo == null || isNaN(day) || isNaN(year)) return null;
+    return new Date(year, mo, day);
+  }
+  function isPast(dateStr) {
+    var d = parseFrDate(dateStr);
+    if (!d) return false;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    return d < today;   // une rencontre jouée le jour même n'est pas grisée
+  }
+
   function journeeRow(j) {
     var dom = /^dom/i.test(j.lieu);
-    var border = dom ? '#A5EB78' : '#0A1988';
-    var tagbg = dom ? '#A5EB78' : '#0A1988';
-    var tagfg = dom ? '#060B3C' : '#fff';
-    var tag = dom ? 'Domicile' : 'Extérieur';
-    var title = dom ? ('BCCO reçoit ' + esc(j.adversaire)) : ('Déplacement à ' + esc(j.adversaire));
-    var sub = dom ? 'Halle Marie-Amélie Le Fur' : 'En déplacement';
-    return '<div style="display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:16px;background:#F5F7FB;border-left:4px solid ' + border + ';padding:14px 18px;margin-bottom:10px">'
-      + '<div><div style="font-family:\'Anton\',sans-serif;font-size:22px;color:#060B3C;line-height:1">J' + esc(j.journee) + '</div>'
-      + '<div style="font-size:11px;color:#5A6380;font-weight:600;margin-top:3px">' + esc(j.date) + '</div></div>'
-      + '<div><div style="font-weight:800;font-size:14.5px;color:#0B1130">' + title + '</div>'
-      + '<div style="font-size:12px;color:#5A6380;margin-top:2px">' + sub + '</div></div>'
-      + '<span style="background:' + tagbg + ';color:' + tagfg + ';font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;transform:skewX(-8deg);white-space:nowrap">' + tag + '</span></div>';
+    var past = isPast(j.date);
+    var adv = esc(j.adversaire);
+    var vs = '<span style="color:#9AA2BD;font-weight:600;font-size:12px">vs</span>';
+    var match = dom ? ('BCCO ' + vs + ' ' + adv) : (adv + ' ' + vs + ' BCCO');
+    // Couleurs : accent vert (domicile) / bleu (extérieur), grisé si passé
+    var accent = past ? '#C7CCDA' : (dom ? '#A5EB78' : '#0A1988');
+    var bg = past ? '#F0F2F7' : '#F5F7FB';
+    var jColor = past ? '#9AA2BD' : '#060B3C';
+    var matchColor = past ? '#9AA2BD' : '#0B1130';
+    var tag = past ? 'Terminé' : (dom ? 'Domicile' : 'Extérieur');
+    var tagbg = past ? '#E3E7F0' : (dom ? '#A5EB78' : '#0A1988');
+    var tagfg = past ? '#8A93B0' : (dom ? '#060B3C' : '#fff');
+    return '<div style="display:flex;align-items:center;gap:12px;background:' + bg + ';border-left:4px solid ' + accent + ';padding:9px 14px;margin-bottom:7px' + (past ? ';opacity:.72' : '') + '">'
+      + '<div style="flex:0 0 auto;text-align:center">'
+      + '<div style="font-family:\'Anton\',sans-serif;font-size:17px;color:' + jColor + ';line-height:1">J' + esc(j.journee) + '</div>'
+      + '<div style="font-size:9.5px;color:#9AA2BD;font-weight:700;margin-top:2px;white-space:nowrap">' + esc(j.date) + '</div></div>'
+      + '<div style="flex:1;min-width:0;font-weight:800;font-size:13px;color:' + matchColor + ';line-height:1.3">' + match + '</div>'
+      + '<span style="flex:0 0 auto;background:' + tagbg + ';color:' + tagfg + ';font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;transform:skewX(-8deg);white-space:nowrap">' + tag + '</span></div>';
   }
 
   function renderJournees(rows) {
