@@ -11,12 +11,11 @@
 // ------------------------------------------------------------------
 // IMPORTANT : à chaque modif de ce fichier, bump CACHE_VERSION pour
 // invalider les anciens caches et forcer un re-fetch propre.
-const CACHE_VERSION = 'v62-2026-05-29';
+const CACHE_VERSION = 'v63-2026-07-06';
 const CACHE_NAME    = 'bcco-' + CACHE_VERSION;
 
 const SHELL = [
   './index.html',
-  './equipes.html',
   './reservations.html',
   './galerie.html',
   './styles.css'

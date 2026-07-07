@@ -22,25 +22,16 @@
       dupKey: row => `${row.date}|${row.titre}`
     },
     {
-      file: 'data/effectifs.csv',
-      label: 'Effectifs',
-      required: ['equipe', 'nom', 'prenom', 'simple', 'double', 'mixte', 'capitaine', 'actif'],
-      activeField: 'actif',
-      dupKey: row => `${row.nom}|${row.prenom}|${row.equipe}`
+      file: 'data/poules.csv',
+      label: 'Poules interclubs',
+      required: ['poule', 'ordre', 'equipe', 'bcco'],
+      dupKey: row => `${row.poule}|${row.equipe}`
     },
     {
-      file: 'data/rencontres.csv',
-      label: 'Rencontres',
-      required: ['equipe', 'date', 'date_affichage', 'adversaire', 'domicile', 'tag', 'actif'],
-      dateFields: ['date'],
-      activeField: 'actif',
-      dupKey: row => `${row.equipe}|${row.date}|${row.adversaire}`
-    },
-    {
-      file: 'data/classement.csv',
-      label: 'Classement',
-      required: ['pool', 'team', 'J', 'G', 'N', 'P', 'F', 'B+', 'P-', 'Pts', 'chambly'],
-      dupKey: row => `${row.pool}|${row.team}`
+      file: 'data/journees.csv',
+      label: 'Journées BCCO',
+      required: ['journee', 'date', 'adversaire', 'lieu'],
+      dupKey: row => `${row.journee}`
     },
     {
       file: 'data/top12.csv',
@@ -129,7 +120,7 @@
 
   async function imageExists(url) {
     // Pour les images locales (./media/...), HEAD request
-    if (!/^\.?\//.test(url)) return null; // URL externe : on ne teste pas
+    if (/^https?:\/\//i.test(url)) return null; // URL externe : on ne teste pas
     try {
       const r = await fetch(url.replace(/^\.\//, ''), { method: 'HEAD' });
       return r.ok;
@@ -144,7 +135,7 @@
   }
   function isValidUrl(s) {
     if (!s) return true;
-    return /^(https?:\/\/|\.?\/)/.test(s);
+    return /^(https?:\/\/|\.?\/|[\w.\-]+\/)/.test(s);
   }
 
   // -----------------------------------------------------------
