@@ -89,13 +89,6 @@
     // conteneur qui piégerait le position:fixed dans la hauteur du nav.
     document.body.appendChild(menu);
     menu.innerHTML =
-      '<div class="rd-drawer-head">' +
-        '<div class="rd-drawer-brand">' +
-          '<img src="media/logo.webp" alt="BCCO" />' +
-          '<span>Badminton Club<small>Chambly Oise</small></span>' +
-        '</div>' +
-        '<button type="button" class="rd-drawer-close" aria-label="Fermer" data-menu-close>✕</button>' +
-      '</div>' +
       '<div class="rd-drawer-links">' + links + '</div>' +
       '<div class="rd-drawer-foot">' +
         '<a class="rd-df-outline" href="reservations.html" data-menu-close>Réserver un terrain</a>' +
@@ -115,8 +108,17 @@
       }
       if (e.target.closest && e.target.closest('[data-menu-close]')) menu.classList.remove('open');
     });
+    // Le bouton ☰ de la barre devient ✕ à l'ouverture (même bouton,
+    // on ne redessine pas de logo/texte → la barre ne bouge pas).
+    var toggles = document.querySelectorAll('[data-menu-toggle]');
     var mo = new MutationObserver(function () {
-      document.documentElement.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+      var open = menu.classList.contains('open');
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+      Array.prototype.forEach.call(toggles, function (b) {
+        b.textContent = open ? '✕' : '☰';
+        b.setAttribute('aria-label', open ? 'Fermer le menu' : 'Menu');
+        b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
     });
     mo.observe(menu, { attributes: true, attributeFilter: ['class'] });
   }
