@@ -123,6 +123,29 @@
     mo.observe(menu, { attributes: true, attributeFilter: ['class'] });
   }
 
+  // Nav PC : reconstruite depuis la même config que le drawer,
+  // pour garantir des titres identiques mobile / desktop.
+  function buildDesktopNav() {
+    var dsk = document.querySelector('nav .rd-dsk');
+    if (!dsk || dsk.__rdBuilt) return;
+    dsk.__rdBuilt = true;
+    var html = drawerLinks.map(function (l) {
+      if (l.children) {
+        var subs = l.children.map(function (c) {
+          return '<a href="' + c.href + '">' + c.label + '</a>';
+        }).join('');
+        return '<div class="rd-dsk-drop">' +
+          '<button type="button" class="rd-dsk-drop-btn">' + l.label + ' <span class="rd-dsk-caret">▾</span></button>' +
+          '<div class="rd-dsk-menu"><div class="rd-dsk-menu-inner">' + subs + '</div></div>' +
+        '</div>';
+      }
+      return '<a class="rd-dsk-link" href="' + l.href + '">' + l.label + '</a>';
+    }).join('');
+    html += '<a class="rd-dsk-cta" href="reservations.html">Réserver un terrain</a>' +
+      '<a class="rd-dsk-cta-green" href="' + anchor('#rejoindre') + '"><span>Se licencier</span></a>';
+    dsk.innerHTML = html;
+  }
+
   // ----- 3. Installation PWA -----
   var deferredPrompt = null;
 
@@ -287,7 +310,7 @@
   });
 
   // ----- init -----
-  function init() { buildPill(); buildDrawer(); buildCarousels(); }
+  function init() { buildPill(); buildDrawer(); buildDesktopNav(); buildCarousels(); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

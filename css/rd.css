@@ -14,9 +14,13 @@ button{font-family:inherit}
 @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
 details summary::-webkit-details-marker{display:none}
 
-/* Affichage desktop / mobile (breakpoint maquette : 920px) */
-@media (max-width:920px){ .rd-dsk{display:none !important} }
-@media (min-width:921px){ .rd-mob{display:none !important} .rd-mobile-menu{display:none !important} }
+/* Contenu desktop / mobile (breakpoint maquette : 920px) */
+@media (max-width:920px){ header .rd-dsk{display:none !important} }
+/* Nav : le menu PC est fourni (10 entrées) → on bascule sur le
+   hamburger + drawer plein écran en dessous de 1260px, pour garder
+   des titres identiques mobile/desktop sans tasser la barre. */
+@media (max-width:1259px){ nav .rd-dsk{display:none !important} }
+@media (min-width:1260px){ .rd-mob{display:none !important} .rd-mobile-menu{display:none !important} }
 .rd-mobile-menu{display:none}
 .rd-mobile-menu.open{display:flex !important}
 
@@ -197,6 +201,48 @@ body.rd-has-pill{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   background:rgba(255,255,255,.14);border:none;color:#fff;font-size:20px;line-height:1;
   cursor:pointer;font-family:inherit;z-index:2
 }
+
+/* ============================================================
+   Nav PC reconstruite par js/rd-mobile.js (identique au menu
+   mobile, avec le menu déroulant « La structure »).
+   ============================================================ */
+nav .rd-dsk{gap:16px}
+.rd-dsk-link,.rd-dsk-drop-btn{
+  color:rgba(255,255,255,.85);text-decoration:none;font-weight:800;font-size:13px;
+  background:none;border:none;font-family:inherit;cursor:pointer;white-space:nowrap
+}
+.rd-dsk-link:hover,.rd-dsk-drop:hover .rd-dsk-drop-btn{color:#A5EB78}
+.rd-dsk-drop{position:relative;display:inline-flex;align-items:center}
+.rd-dsk-drop-btn{display:inline-flex;align-items:center;gap:5px}
+.rd-dsk-drop-btn .rd-dsk-caret{font-size:10px;transition:transform .2s ease}
+.rd-dsk-drop:hover .rd-dsk-drop-btn .rd-dsk-caret{transform:rotate(180deg)}
+.rd-dsk-menu{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  padding-top:16px;display:none;flex-direction:column;min-width:186px;z-index:200
+}
+.rd-dsk-drop:hover .rd-dsk-menu,.rd-dsk-drop:focus-within .rd-dsk-menu{display:flex}
+.rd-dsk-menu-inner{
+  background:rgba(6,11,60,.98);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(165,235,120,.2);display:flex;flex-direction:column;padding:8px;
+  box-shadow:0 18px 44px rgba(6,11,60,.5)
+}
+.rd-dsk-menu-inner a{
+  color:rgba(255,255,255,.85);text-decoration:none;padding:11px 16px;font-size:13.5px;
+  font-weight:700;white-space:nowrap;transition:background .15s,color .15s
+}
+.rd-dsk-menu-inner a:hover{background:rgba(165,235,120,.12);color:#A5EB78}
+.rd-dsk-cta{
+  color:#fff;text-decoration:none;border:1.5px solid rgba(255,255,255,.35);
+  padding:9px 14px;font-weight:700;font-size:12px;white-space:nowrap;transition:border-color .15s,color .15s
+}
+.rd-dsk-cta:hover{border-color:#A5EB78;color:#A5EB78}
+.rd-dsk-cta-green{
+  background:#A5EB78;color:#060B3C;text-decoration:none;padding:10px 15px;font-weight:800;
+  font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;transform:skewX(-8deg);
+  display:inline-block;white-space:nowrap;transition:background .15s
+}
+.rd-dsk-cta-green>span{display:inline-block;transform:skewX(8deg)}
+.rd-dsk-cta-green:hover{background:#7ed957}
 @media (prefers-reduced-motion: reduce){
   .rd-mobile-menu.rd-drawer.open,
   .rd-mobile-menu.rd-drawer.open *{animation:none !important}
