@@ -55,6 +55,9 @@
     var byPoule = {};
     rows.forEach(function (r) { (byPoule[r.poule] = byPoule[r.poule] || []).push(r); });
     var nums = Object.keys(byPoule).sort();
+    // Notre poule (celle du BCCO) affichée en premier
+    var bccoPoule = (rows.filter(function (r) { return isX(r.bcco); })[0] || {}).poule;
+    if (bccoPoule) nums = [bccoPoule].concat(nums.filter(function (n) { return n !== bccoPoule; }));
     var html = nums.map(function (n, idx) {
       var teams = byPoule[n].slice().sort(function (a, b) { return (+a.ordre || 0) - (+b.ordre || 0); });
       return pouleCard(n, teams, idx % 2 === 1);   // 1re poule claire, 2e sombre

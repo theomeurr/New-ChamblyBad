@@ -5,6 +5,7 @@
      2. Menu mobile plein écran (typo Anton, liens numérotés)
      3. Bouton « Installer l'application » (menu + bannière)
         piloté par l'événement beforeinstallprompt
+     4. Carrousels mobile (.rd-carousel) : points indicateurs + swipe
    Le service worker, lui, est enregistré par pwa.js.
    Aucun markup à ajouter dans les pages : tout est injecté ici.
    ============================================================ */
@@ -15,7 +16,8 @@
     home:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>',
     teams:   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>',
     gallery: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
-    book:    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+    book:    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+    clock:   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     download:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>'
   };
 
@@ -24,6 +26,7 @@
   var isHome = (page === '' || page === 'index.html');
   var homeUrl = isHome ? '#top' : 'index.html';
   var teamsUrl = isHome ? '#equipes' : 'index.html#equipes';
+  var horairesUrl = isHome ? '#horaires' : 'index.html#horaires';
 
   // ----- 1. Nav pill flottante (mobile) -----
   function buildPill() {
@@ -32,10 +35,10 @@
     nav.className = 'rd-pill';
     nav.setAttribute('aria-label', 'Navigation rapide');
     nav.innerHTML =
-      '<a href="' + homeUrl + '"' + (isHome ? ' class="is-active"' : '') + '>' + SVG.home + '<span>Accueil</span></a>' +
-      '<a href="' + teamsUrl + '">' + SVG.teams + '<span>Équipes</span></a>' +
-      '<a href="galerie.html"' + (page === 'galerie.html' ? ' class="is-active"' : '') + '>' + SVG.gallery + '<span>Galerie</span></a>' +
-      '<a href="reservations.html" class="rd-pill-cta' + (page === 'reservations.html' ? ' is-active' : '') + '">' + SVG.book + '<span>Réserver</span></a>';
+      '<a href="' + homeUrl + '" aria-label="Accueil"' + (isHome ? ' class="is-active"' : '') + '>' + SVG.home + '</a>' +
+      '<a href="' + teamsUrl + '" aria-label="Équipes">' + SVG.teams + '</a>' +
+      '<a href="' + horairesUrl + '" aria-label="Horaires">' + SVG.clock + '</a>' +
+      '<a href="reservations.html" class="rd-pill-cta' + (page === 'reservations.html' ? ' is-active' : '') + '" aria-label="Réserver un terrain">' + SVG.book + '</a>';
     document.body.appendChild(nav);
     document.body.classList.add('rd-has-pill');
   }
@@ -158,8 +161,73 @@
     try { localStorage.setItem('bcco-install-dismissed', '1'); } catch (e) {}
   });
 
+  // ----- 4. Carrousels mobile (.rd-carousel) : points + swipe -----
+  function buildCarousels() {
+    var cars = document.querySelectorAll('.rd-carousel');
+    Array.prototype.forEach.call(cars, function (car) {
+      if (car.__rdCar) return;
+      car.__rdCar = true;
+
+      var dots = document.createElement('div');
+      dots.className = 'rd-dots';
+      car.insertAdjacentElement('afterend', dots);
+
+      function scrollToIndex(i) {
+        var child = car.children[i];
+        if (!child) return;
+        var cr = car.getBoundingClientRect();
+        var chr = child.getBoundingClientRect();
+        var delta = (chr.left - cr.left) - (cr.width - chr.width) / 2;
+        car.scrollTo({ left: car.scrollLeft + delta, behavior: 'smooth' });
+      }
+
+      function activeIndex() {
+        var cr = car.getBoundingClientRect();
+        var center = cr.left + cr.width / 2;
+        var best = 0, bestD = Infinity;
+        Array.prototype.forEach.call(car.children, function (ch, i) {
+          var r = ch.getBoundingClientRect();
+          var d = Math.abs(r.left + r.width / 2 - center);
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        return best;
+      }
+
+      function sync() {
+        var on = activeIndex();
+        Array.prototype.forEach.call(dots.children, function (d, i) {
+          d.classList.toggle('on', i === on);
+        });
+      }
+
+      function render() {
+        var n = car.children.length;
+        dots.innerHTML = '';
+        if (n < 2) return;
+        for (var i = 0; i < n; i++) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.setAttribute('aria-label', 'Aller à l’élément ' + (i + 1));
+          (function (idx) { b.addEventListener('click', function () { scrollToIndex(idx); }); })(i);
+          dots.appendChild(b);
+        }
+        sync();
+      }
+
+      var raf;
+      car.addEventListener('scroll', function () {
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(sync);
+      }, { passive: true });
+
+      render();
+      // Contenu injecté après coup (poules chargées en CSV) → régénère les points
+      new MutationObserver(render).observe(car, { childList: true });
+    });
+  }
+
   // ----- init -----
-  function init() { buildPill(); buildDrawer(); }
+  function init() { buildPill(); buildDrawer(); buildCarousels(); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

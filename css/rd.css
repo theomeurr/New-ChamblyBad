@@ -145,3 +145,77 @@ body.rd-has-pill{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .rd-drawer-foot .rd-df-green{background:#A5EB78;color:#060B3C;padding:16px}
 /* Le bouton d'install hérite de .rd-install-drawer (masqué si non installable) */
 .rd-drawer-foot .rd-install-drawer{margin-top:4px}
+
+/* ============================================================
+   Animation d'ouverture du menu plein écran
+   ============================================================ */
+@keyframes rd-drawer-in{from{opacity:0}to{opacity:1}}
+@keyframes rd-drawer-item-in{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+.rd-mobile-menu.rd-drawer.open{animation:rd-drawer-in .26s ease both}
+.rd-mobile-menu.rd-drawer.open .rd-drawer-head{animation:rd-drawer-item-in .34s ease both}
+.rd-mobile-menu.rd-drawer.open .rd-drawer-link,
+.rd-mobile-menu.rd-drawer.open .rd-drawer-foot{animation:rd-drawer-item-in .42s ease both}
+.rd-drawer.open .rd-drawer-link:nth-child(1){animation-delay:.04s}
+.rd-drawer.open .rd-drawer-link:nth-child(2){animation-delay:.08s}
+.rd-drawer.open .rd-drawer-link:nth-child(3){animation-delay:.12s}
+.rd-drawer.open .rd-drawer-link:nth-child(4){animation-delay:.16s}
+.rd-drawer.open .rd-drawer-link:nth-child(5){animation-delay:.20s}
+.rd-drawer.open .rd-drawer-link:nth-child(6){animation-delay:.24s}
+.rd-drawer.open .rd-drawer-link:nth-child(7){animation-delay:.28s}
+.rd-drawer.open .rd-drawer-link:nth-child(8){animation-delay:.32s}
+.rd-drawer.open .rd-drawer-link:nth-child(9){animation-delay:.36s}
+.rd-mobile-menu.rd-drawer.open .rd-drawer-foot{animation-delay:.40s}
+@media (prefers-reduced-motion: reduce){
+  .rd-mobile-menu.rd-drawer.open,
+  .rd-mobile-menu.rd-drawer.open *{animation:none !important}
+}
+
+/* ============================================================
+   Carrousels & mise en page mobile (≤ 920px)
+   .rd-carousel : grille → défilement horizontal avec accroche
+   .rd-stack    : grille multi-colonnes → une seule colonne
+   .rd-compact  : réduit les paddings d'une section dense
+   ============================================================ */
+.rd-dots{display:none}
+@media (max-width:920px){
+  /* Colonne unique (corrige les grilles minmax trop larges) */
+  .rd-stack{grid-template-columns:1fr !important}
+
+  /* Carrousel horizontal à accroche */
+  .rd-carousel{
+    display:flex !important;
+    grid-template-columns:none !important;
+    flex-wrap:nowrap !important;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    gap:14px !important;
+    scroll-padding-left:28px;
+    padding-bottom:4px;
+    scrollbar-width:none;
+  }
+  .rd-carousel::-webkit-scrollbar{display:none}
+  .rd-carousel > *{
+    flex:0 0 84% !important;
+    scroll-snap-align:center;
+    min-width:0;
+  }
+  .rd-carousel.rd-carousel-sm > *{flex-basis:64% !important}
+
+  /* Points indicateurs (générés par js/rd-mobile.js) */
+  .rd-dots{display:flex;justify-content:center;gap:7px;margin-top:16px}
+  .rd-dots button{
+    width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;
+    background:rgba(6,11,60,.25);transition:width .2s,background .2s
+  }
+  .rd-dots button.on{width:20px;border-radius:4px;background:#0A1988}
+
+  /* Section dense : recrutement des officiels */
+  .rd-compact{margin-top:44px !important}
+  .rd-compact > :first-child{padding:30px 22px !important}
+  .rd-compact > :last-child > *{padding:15px 22px !important}
+
+  /* Le club : la photo/étiquette ne doit pas déborder */
+  #club .rd-club-media{margin-top:34px}
+  #club .rd-club-badge{left:0 !important;bottom:-16px !important}
+}
