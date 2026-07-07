@@ -24,3 +24,6 @@ package-lock.json
 !.dev.vars.example
 .env*
 !.env.example
+
+# Config MySQL admin (o2switch) — jamais committé, contient le mot de passe DB
+admin-auth/config.php

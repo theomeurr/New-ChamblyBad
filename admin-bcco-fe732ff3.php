@@ -1,3 +1,8 @@
+<?php
+declare(strict_types=1);
+require_once __DIR__ . '/admin-auth/auth.php';
+$currentAdmin = require_login();
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -411,24 +416,11 @@ tr:hover{background:rgba(165,235,120,.04)}
 </head>
 <body>
 
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-card">
-    <img src="./media/cropped-Logo-BCCO-180x180.webp" alt="BCCO"/>
-    <h2>Espace Admin</h2>
-    <p>Espace admin BCCO.</p>
-    <div class="login-err" id="loginErr">Identifiants incorrects</div>
-    <div class="login-err" id="loginLock" style="display:none">Trop de tentatives. Réessayez dans <span id="lockTimer"></span>.</div>
-    <input type="text" id="loginUser" placeholder="Identifiant" autocomplete="username"/>
-    <input type="password" id="loginCode" placeholder="Mot de passe" autocomplete="current-password"/>
-    <button class="login-btn" id="loginBtn" type="button">Se connecter</button>
-  </div>
-</div>
-
-<div class="topbar" id="topbar" style="display:none">
+<div class="topbar" id="topbar">
   <div class="logo">
     <img src="./media/cropped-Logo-BCCO-180x180.webp" alt="BCCO"/>
     BCCO Admin
-    <span class="badge">Admin</span>
+    <span class="badge"><?= htmlspecialchars($currentAdmin['label']) ?></span>
   </div>
   <div class="topbar-right">
     <a href="index.html">
@@ -443,82 +435,18 @@ tr:hover{background:rgba(165,235,120,.04)}
       <svg class="i" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
       Aide
     </a>
-    <button type="button" id="accesBtn" onclick="openAccesDrawer()" style="display:none">
-      <svg class="i" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0112 0v1"/><circle cx="19" cy="8" r="2" fill="currentColor" stroke="none"/><line x1="19" y1="6" x2="19" y2="10"/><line x1="17" y1="8" x2="21" y2="8"/></svg>
-      Gérer les accès
-    </button>
-    <button type="button" class="btn-logout" id="logoutBtn" onclick="doLogout()">
+    <a href="admin-auth/logout.php" class="btn-logout">
       <svg class="i" width="16" height="16" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Deconnexion
-    </button>
+    </a>
   </div>
 </div>
 
-<!-- ===== DRAWER GESTION DES ACCÈS (super admin seulement) ===== -->
-<div id="accesOverlay" onclick="closeAccesDrawer()" style="display:none;position:fixed;inset:0;background:rgba(11,17,48,.5);z-index:300"></div>
-<div id="accesDrawer" style="display:none;position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);background:#fff;z-index:301;overflow-y:auto;box-shadow:-8px 0 40px rgba(10,25,136,.18);padding:28px 28px 40px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-    <h3 style="font-size:1.1rem;margin:0">Gestion des accès admin</h3>
-    <button onclick="closeAccesDrawer()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--muted);font-size:20px;line-height:1">&times;</button>
-  </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6">
-    Les identifiants sont stockés sous forme de hash dans <code>data/admins.json</code>.
-    Générez un hash ci-dessous, copiez l’entrée dans le fichier, puis redéployez.
-  </p>
+<!-- Ancien panneau "Gestion des accès" (data/admins.json) retiré : les comptes admin
+     vivent désormais dans MySQL (table admins), gérés via admin-auth/. -->
 
-  <!-- Utilisateurs actuels -->
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Utilisateurs configurés</div>
-  <div id="accesUserList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-    <div style="font-size:13px;color:var(--muted);font-style:italic">Chargement…</div>
-  </div>
-  <div id="revokeResult" style="display:none;margin-bottom:20px">
-    <div style="font-size:12px;font-weight:600;color:#b91c1c;margin-bottom:6px">✓ Accès révoqué — nouveau contenu à copier dans <code>data/admins.json</code> :</div>
-    <textarea id="revokeOutput" readonly rows="5"
-      style="width:100%;border-radius:8px;border:1px solid #fca5a5;padding:10px;font-size:11px;font-family:monospace;resize:none;background:#fff5f5;outline:none;cursor:text"
-      onclick="this.select()"></textarea>
-    <div style="font-size:11px;color:var(--muted);margin-top:4px">Copiez → ouvrez <code>data/admins.json</code> → remplacez le contenu → git push.</div>
-  </div>
-
-  <hr style="border:none;border-top:1px solid var(--line);margin-bottom:20px"/>
-
-  <!-- Générateur de hash -->
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px">Générer un nouvel accès</div>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div>
-      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Identifiant</label>
-      <input id="genUser" type="text" placeholder="ex: marie.dupont" autocomplete="off"
-        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-size:13px;font-family:inherit;outline:none"/>
-    </div>
-    <div>
-      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Mot de passe</label>
-      <input id="genPass" type="password" placeholder="Choisir un mot de passe" autocomplete="off"
-        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-size:13px;font-family:inherit;outline:none"/>
-    </div>
-    <div>
-      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Rôle</label>
-      <select id="genRole" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-size:13px;font-family:inherit;outline:none;background:#fff">
-        <option value="admin">Admin (peut modifier, pas gérer les accès)</option>
-        <option value="super">Super admin (accès complet)</option>
-      </select>
-    </div>
-    <button id="genHashBtn" onclick="genHashUI()"
-      style="padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#0A1988;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:inherit">
-      Générer le hash
-    </button>
-    <div id="genResult" style="display:none">
-      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Entrée à copier dans <code>data/admins.json</code> :</div>
-      <textarea id="genOutput" readonly rows="5"
-        style="width:100%;border-radius:8px;border:1px solid var(--line);padding:10px;font-size:11px;font-family:monospace;resize:none;background:#f7f7fa;outline:none;cursor:text"
-        onclick="this.select()"></textarea>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">Cliquez sur la zone pour tout sélectionner, puis copiez.</div>
-    </div>
-  </div>
-
-  <div style="margin-top:20px;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;font-size:12px;color:#92400e;line-height:1.6">
-    <strong>Comment ajouter :</strong> Générez le hash → copiez l’entrée → ouvrez <code>data/admins.json</code> → ajoutez dans le tableau → git push.  </div>
-</div>
-
-<div class="dashboard" id="dashboard" style="display:none">  <h3 class="section-title" style="margin-top:20px">Annonce du site</h3>
+<div class="dashboard" id="dashboard">
+  <h3 class="section-title" style="margin-top:20px">Annonce du site</h3>
   <p class="section-sub">
     Bandeau affiché en haut de toutes les pages publiques (sous la barre de navigation T.Bar, au-dessus du bandeau "prochain match" s'il est présent).
     Idéal pour communiquer une info ponctuelle : jour férié, ouverture des inscriptions, fin de saison, fermeture exceptionnelle, etc.

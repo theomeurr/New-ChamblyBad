@@ -43,7 +43,8 @@ Tous les contenus dynamiques sont lus depuis des **fichiers CSV dans `data/`**, 
 | Réservations confirmées | `data/reservations/reservations.csv` |
 | Licenciés (vérification réduction) | `data/reservations/licencies.csv` |
 | Config réservation (tarifs, nb terrains…) | `data/reservations/config.csv` |
-| Comptes admin | `data/admins.json` |
+
+**Comptes admin** : gérés via MySQL (table `admins`), authentification PHP côté serveur — voir [`admin-auth/`](admin-auth/). Ne pas confondre avec le PAT GitHub utilisé pour éditer les CSV.
 
 ---
 
@@ -102,7 +103,6 @@ ChamblyBad/
 │   ├── classement-meta.csv
 │   ├── effectifs.csv
 │   ├── palmares.csv
-│   ├── admins.json
 │   └── reservations/
 │       ├── config.csv
 │       ├── creneaux_ouverts.csv
