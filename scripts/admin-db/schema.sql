@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS admins (
   role ENUM('admin', 'super') NOT NULL DEFAULT 'admin',
   failed_attempts INT UNSIGNED NOT NULL DEFAULT 0,
   locked_until DATETIME NULL,
+  last_login DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($result === 'invalid') {
             $error = 'Identifiants incorrects.';
         } else {
+            record_login((int) $result['id']);
             log_in_session($result);
             header('Location: /admin-bcco-fe732ff3.php');
             exit;

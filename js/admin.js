@@ -303,3 +303,46 @@ async function loadActusPreview(){
   statusEl.textContent = `${publies} en ligne${brouillons?` · ${brouillons} brouillon${brouillons>1?'s':''}`:''} · source : ${sourceUsed}`;
 }
 
+/* =================================================================
+   HISTORIQUE DES MODIFICATIONS (super-admin) — commits GitHub récents
+================================================================== */
+function openHistory(){
+  const drawer = document.getElementById('historyDrawer');
+  const overlay = document.getElementById('historyOverlay');
+  if (!drawer || !overlay) return;
+  drawer.style.display = '';
+  overlay.style.display = '';
+  loadHistory();
+}
+function closeHistory(){
+  const drawer = document.getElementById('historyDrawer');
+  const overlay = document.getElementById('historyOverlay');
+  if (drawer) drawer.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
+}
+async function loadHistory(){
+  const list = document.getElementById('historyList');
+  if (!list) return;
+  list.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic">Chargement…</div>';
+  const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  try {
+    const r = await fetch('admin-auth/history.php', { credentials: 'same-origin' });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+    if (!data.commits || !data.commits.length){
+      list.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic">Aucun historique.</div>';
+      return;
+    }
+    list.innerHTML = data.commits.map(c => {
+      const d = new Date(c.date);
+      const dateStr = isNaN(d) ? '' : d.toLocaleString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+      return `<div style="padding:10px 12px;background:var(--bg-2);border-radius:8px">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(c.message)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(dateStr)} · <a href="${esc(c.url)}" target="_blank" rel="noopener" style="color:var(--secondary);text-decoration:underline">${esc(c.sha)}</a></div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    list.innerHTML = '<div style="font-size:13px;color:#ef4444">Erreur : ' + esc(e.message) + '</div>';
+  }
+}
+

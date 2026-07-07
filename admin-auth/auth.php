@@ -42,7 +42,18 @@ function create_admin(string $label, string $password, string $role = 'admin'): 
 }
 
 function list_admins(): array {
-    return db()->query('SELECT id, label, role, created_at FROM admins ORDER BY created_at ASC')->fetchAll();
+    return db()->query('SELECT id, label, role, created_at, last_login FROM admins ORDER BY created_at ASC')->fetchAll();
+}
+
+function reset_password(int $id, string $password): void {
+    $hash = password_hash($password, PASSWORD_BCRYPT);
+    $stmt = db()->prepare('UPDATE admins SET password_hash = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?');
+    $stmt->execute([$hash, $id]);
+}
+
+function record_login(int $id): void {
+    $stmt = db()->prepare('UPDATE admins SET last_login = NOW() WHERE id = ?');
+    $stmt->execute([$id]);
 }
 
 function count_super_admins(): int {

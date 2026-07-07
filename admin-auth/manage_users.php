@@ -55,10 +55,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             revoke_admin($id);
             $success = "Accès de « {$target['label']} » révoqué.";
         }
+    } elseif ($action === 'reset_password') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $password = $_POST['password'] ?? '';
+        $confirm = $_POST['confirm'] ?? '';
+        $target = find_admin_by_id($id);
+
+        if (!$target) {
+            $error = 'Compte introuvable.';
+        } elseif (strlen($password) < 10) {
+            $error = 'Le mot de passe doit faire au moins 10 caractères.';
+        } elseif ($password !== $confirm) {
+            $error = 'Les deux mots de passe ne correspondent pas.';
+        } else {
+            reset_password($id, $password);
+            $success = "Mot de passe de « {$target['label']} » réinitialisé.";
+        }
     }
 }
 
 $admins = list_admins();
+$resetId = isset($_GET['reset']) ? (int) $_GET['reset'] : 0;
+
+function fmt_datetime(?string $dt): string {
+    if (!$dt) return 'Jamais connecté';
+    return 'Dernière connexion : ' . date('d/m/Y à H:i', strtotime($dt));
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -76,18 +98,24 @@ body{font-family:system-ui,sans-serif;color:var(--text);background:var(--bg-2);m
 a.back{font-size:13px;color:var(--secondary);text-decoration:none;font-weight:600}
 h2{margin:16px 0 20px}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
-.row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-2);border-radius:8px;margin-bottom:8px}
-.row .label{flex:1;font-weight:600;font-size:13px}
+.row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-2);border-radius:8px;margin-bottom:8px;flex-wrap:wrap}
+.row .label{flex:1 1 auto;min-width:120px}
+.row .label .name{font-weight:600;font-size:13px;display:block}
+.row .label .sub{font-size:11px;color:var(--muted)}
 .tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase}
 .tag.super{background:var(--secondary);color:#fff}
 .tag.admin{background:#fff;border:1px solid var(--line);color:var(--muted)}
 .row form{margin:0}
-.row button{font-size:11px;font-weight:700;color:#b91c1c;background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 9px;cursor:pointer}
+.row-actions{display:flex;gap:6px}
+.row button, .row a.mini-btn{font-size:11px;font-weight:700;background:none;border-radius:6px;padding:4px 9px;cursor:pointer;text-decoration:none;display:inline-block}
+.row .revoke-btn{color:#b91c1c;border:1px solid #fca5a5}
+.row .reset-btn{color:var(--secondary);border:1px solid var(--line)}
 input,select{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:12px;box-sizing:border-box;font-family:inherit}
 button[type=submit]{padding:11px 18px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:var(--secondary);font-weight:700;cursor:pointer}
 .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
 .msg.err{background:#fef2f2;color:#b91c1c}
 .msg.ok{background:rgba(165,235,120,.15);color:#166534}
+.reset-card{border:1px solid var(--gold-2);background:rgba(165,235,120,.06)}
 </style>
 </head>
 <body>
@@ -98,22 +126,41 @@ button[type=submit]{padding:11px 18px;border-radius:10px;border:none;background:
   <?php if ($error): ?><div class="msg err"><?= htmlspecialchars($error) ?></div><?php endif; ?>
   <?php if ($success): ?><div class="msg ok"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
+  <?php if ($resetId && ($resetTarget = find_admin_by_id($resetId))): ?>
+  <div class="card reset-card">
+    <strong style="font-size:13px">Réinitialiser le mot de passe de « <?= htmlspecialchars($resetTarget['label']) ?> »</strong>
+    <form method="post" style="margin-top:14px">
+      <input type="hidden" name="action" value="reset_password"/>
+      <input type="hidden" name="id" value="<?= (int) $resetTarget['id'] ?>"/>
+      <input type="password" name="password" placeholder="Nouveau mot de passe (min. 10 caractères)" required/>
+      <input type="password" name="confirm" placeholder="Confirmer le mot de passe" required/>
+      <button type="submit">Réinitialiser</button>
+    </form>
+  </div>
+  <?php endif; ?>
+
   <div class="card">
     <strong style="font-size:13px">Utilisateurs configurés</strong>
     <div style="margin-top:12px">
       <?php foreach ($admins as $a): ?>
         <div class="row">
-          <span class="label"><?= htmlspecialchars($a['label']) ?></span>
+          <span class="label">
+            <span class="name"><?= htmlspecialchars($a['label']) ?></span>
+            <span class="sub"><?= htmlspecialchars(fmt_datetime($a['last_login'])) ?></span>
+          </span>
           <span class="tag <?= $a['role'] === 'super' ? 'super' : 'admin' ?>"><?= $a['role'] === 'super' ? 'super admin' : 'admin' ?></span>
-          <?php if ((int) $a['id'] === $myId): ?>
-            <span style="font-size:11px;color:var(--muted);font-style:italic">vous</span>
-          <?php else: ?>
-            <form method="post" onsubmit="return confirm('Révoquer l\'accès de « <?= htmlspecialchars($a['label']) ?> » ?');">
-              <input type="hidden" name="action" value="revoke"/>
-              <input type="hidden" name="id" value="<?= (int) $a['id'] ?>"/>
-              <button type="submit">Révoquer</button>
-            </form>
-          <?php endif; ?>
+          <div class="row-actions">
+            <a class="mini-btn reset-btn" href="?reset=<?= (int) $a['id'] ?>">Réinitialiser MDP</a>
+            <?php if ((int) $a['id'] === $myId): ?>
+              <span style="font-size:11px;color:var(--muted);font-style:italic;align-self:center">vous</span>
+            <?php else: ?>
+              <form method="post" onsubmit="return confirm('Révoquer l\'accès de « <?= htmlspecialchars($a['label']) ?> » ?');">
+                <input type="hidden" name="action" value="revoke"/>
+                <input type="hidden" name="id" value="<?= (int) $a['id'] ?>"/>
+                <button type="submit" class="revoke-btn">Révoquer</button>
+              </form>
+            <?php endif; ?>
+          </div>
         </div>
       <?php endforeach; ?>
     </div>
