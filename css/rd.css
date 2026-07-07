@@ -94,3 +94,54 @@ body.rd-has-pill{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   background:none;border:none;color:rgba(6,11,60,.4);font-size:20px;line-height:1;
   cursor:pointer;padding:4px;flex:0 0 auto;font-family:inherit
 }
+
+/* ============================================================
+   Menu mobile plein écran (typo Anton) — reconstruit par
+   js/rd-mobile.js à partir du menu existant. Reprise fidèle
+   de la maquette « Site mobile et PWA ».
+   ============================================================ */
+.rd-mobile-menu.rd-drawer{
+  position:fixed;inset:0;z-index:200;
+  background:linear-gradient(180deg,#060B3C,#0A1155);
+  flex-direction:column;
+  padding:22px 26px calc(30px + env(safe-area-inset-bottom,0px));
+  overflow-y:auto;gap:0
+}
+.rd-drawer-head{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:26px
+}
+.rd-drawer-brand{display:flex;align-items:center;gap:10px}
+.rd-drawer-brand img{width:38px;height:38px;object-fit:contain}
+.rd-drawer-brand span{
+  font-family:'Anton',sans-serif;font-size:15px;color:#fff;text-transform:uppercase;line-height:1
+}
+.rd-drawer-brand span small{
+  display:block;font-size:8px;letter-spacing:.2em;color:#A5EB78;
+  font-family:'Open Sans',sans-serif;font-weight:700
+}
+.rd-drawer-close{
+  width:46px;height:46px;background:rgba(255,255,255,.08);border:none;color:#fff;
+  font-size:20px;cursor:pointer;font-family:inherit;flex:0 0 auto
+}
+.rd-drawer-links{display:flex;flex-direction:column}
+.rd-drawer-link{
+  display:flex;align-items:baseline;gap:16px;text-decoration:none;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,.1)
+}
+.rd-drawer-link .rd-dl-num{
+  font-family:'Anton',sans-serif;font-size:13px;color:rgba(165,235,120,.6);width:26px;flex:0 0 auto
+}
+.rd-drawer-link .rd-dl-label{
+  font-family:'Anton',sans-serif;font-size:26px;text-transform:uppercase;color:#fff;line-height:1;
+  transition:color .15s ease
+}
+.rd-drawer-link:active .rd-dl-label{color:#A5EB78}
+.rd-drawer-foot{margin-top:24px;display:flex;flex-direction:column;gap:12px}
+.rd-drawer-foot a{
+  display:block;text-align:center;text-decoration:none;padding:15px;
+  font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase
+}
+.rd-drawer-foot .rd-df-outline{border:1.5px solid rgba(255,255,255,.4);color:#fff}
+.rd-drawer-foot .rd-df-green{background:#A5EB78;color:#060B3C;padding:16px}
+/* Le bouton d'install hérite de .rd-install-drawer (masqué si non installable) */
+.rd-drawer-foot .rd-install-drawer{margin-top:4px}

@@ -2,7 +2,8 @@
    rd-mobile.js — Expérience mobile + PWA (site déployé)
    Portage des maquettes « Site mobile et PWA » :
      1. Nav flottante « pill » en bas d'écran (mobile ≤ 920px)
-     2. Bouton « Installer l'application » (menu + bannière)
+     2. Menu mobile plein écran (typo Anton, liens numérotés)
+     3. Bouton « Installer l'application » (menu + bannière)
         piloté par l'événement beforeinstallprompt
    Le service worker, lui, est enregistré par pwa.js.
    Aucun markup à ajouter dans les pages : tout est injecté ici.
@@ -39,11 +40,66 @@
     document.body.classList.add('rd-has-pill');
   }
 
-  // ----- 2. Installation PWA -----
+  // ----- 2. Menu mobile plein écran (typo Anton) -----
+  function anchor(hash) { return isHome ? hash : 'index.html' + hash; }
+
+  var drawerLinks = [
+    { num: '01', label: 'Accueil',    href: isHome ? '#top' : 'index.html' },
+    { num: '02', label: 'Actualités', href: anchor('#actus') },
+    { num: '03', label: 'Rejoindre',  href: anchor('#rejoindre') },
+    { num: '04', label: 'Horaires',   href: anchor('#horaires') },
+    { num: '05', label: 'Le club',    href: anchor('#club') },
+    { num: '06', label: 'Équipes',    href: anchor('#equipes') },
+    { num: '07', label: 'Fitness',    href: anchor('#fitness') },
+    { num: '08', label: 'Galerie',    href: 'galerie.html' },
+    { num: '09', label: 'Contact',    href: anchor('#contact') }
+  ];
+
+  function buildDrawer() {
+    var menu = document.querySelector('.rd-mobile-menu');
+    if (!menu || menu.classList.contains('rd-drawer')) return;
+
+    var links = drawerLinks.map(function (l) {
+      return '<a class="rd-drawer-link" href="' + l.href + '" data-menu-close>' +
+        '<span class="rd-dl-num">' + l.num + '</span>' +
+        '<span class="rd-dl-label">' + l.label + '</span></a>';
+    }).join('');
+
+    menu.removeAttribute('style');
+    menu.classList.add('rd-drawer');
+    // Sortir le drawer du <nav> : son backdrop-filter crée un bloc
+    // conteneur qui piégerait le position:fixed dans la hauteur du nav.
+    document.body.appendChild(menu);
+    menu.innerHTML =
+      '<div class="rd-drawer-head">' +
+        '<div class="rd-drawer-brand">' +
+          '<img src="media/logo.webp" alt="BCCO" />' +
+          '<span>BCCO<small>Chambly Oise</small></span>' +
+        '</div>' +
+        '<button type="button" class="rd-drawer-close" aria-label="Fermer" data-menu-close>✕</button>' +
+      '</div>' +
+      '<div class="rd-drawer-links">' + links + '</div>' +
+      '<div class="rd-drawer-foot">' +
+        '<a class="rd-df-outline" href="reservations.html" data-menu-close>Réserver un terrain</a>' +
+        '<a class="rd-df-green" href="' + anchor('#rejoindre') + '" data-menu-close>Se licencier</a>' +
+        '<button type="button" class="rd-install-drawer" data-pwa-install>' + SVG.download + 'Installer l’application</button>' +
+      '</div>';
+
+    // Fermeture (les liens/close portent data-menu-close) + verrou de défilement
+    menu.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-menu-close]')) menu.classList.remove('open');
+    });
+    var mo = new MutationObserver(function () {
+      document.documentElement.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+    });
+    mo.observe(menu, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // ----- 3. Installation PWA -----
   var deferredPrompt = null;
 
   function buildInstallUI() {
-    // Bouton dans le menu mobile
+    // Bouton dans le menu mobile (au cas où le drawer n'aurait pas été construit)
     var menu = document.querySelector('.rd-mobile-menu');
     if (menu && !menu.querySelector('.rd-install-drawer')) {
       var btn = document.createElement('button');
@@ -103,7 +159,7 @@
   });
 
   // ----- init -----
-  function init() { buildPill(); }
+  function init() { buildPill(); buildDrawer(); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
