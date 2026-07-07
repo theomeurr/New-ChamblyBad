@@ -242,6 +242,23 @@ nav .rd-dsk{gap:16px}
 }
 .rd-dsk-cta-green>span{display:inline-block;transform:skewX(8deg)}
 .rd-dsk-cta-green:hover{background:#7ed957}
+
+/* Boutons « Voir sur YouTube / BadNet » sous les cartes équipes */
+.rd-watch{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:#060B3C;color:#fff;text-decoration:none;
+  padding:14px 18px;font-weight:800;font-size:13px;letter-spacing:.04em;
+  text-transform:uppercase;border-top:1px solid rgba(255,255,255,.1);
+  transition:background .2s ease,color .2s ease
+}
+.rd-watch:hover{background:#0A1988;color:#A5EB78}
+.rd-watch svg{flex:0 0 auto}
+.rd-watch img{height:18px;width:auto;display:block;flex:0 0 auto}
+.rd-watch-inline{
+  display:inline-flex;border-top:none;margin-top:18px;padding:13px 24px;
+  border:1.5px solid rgba(10,25,136,.28);background:#060B3C
+}
+.rd-watch-inline:hover{background:#0A1988;border-color:#A5EB78}
 @media (prefers-reduced-motion: reduce){
   .rd-mobile-menu.rd-drawer.open,
   .rd-mobile-menu.rd-drawer.open *{animation:none !important}
