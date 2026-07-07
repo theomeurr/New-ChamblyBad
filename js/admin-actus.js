@@ -168,10 +168,6 @@
           <svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
           Recharger
         </button>
-        <button type="button" class="ae-btn" id="ae-github-logout" title="Se déconnecter de GitHub">
-          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Déconnexion GitHub
-        </button>
         <span class="ae-status" id="ae-status">Chargement…</span>
       </div>
     `;
@@ -182,10 +178,6 @@
 
     document.getElementById('ae-new').addEventListener('click', () => openEditor(-1));
     document.getElementById('ae-reload').addEventListener('click', () => reload());
-    document.getElementById('ae-github-logout').addEventListener('click', () => {
-      BccoGithub.logout();
-      setStatus('Déconnecté. Le prochain chargement redemandera ton token.');
-    });
 
     return true;
   }
