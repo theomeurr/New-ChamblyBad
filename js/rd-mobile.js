@@ -48,18 +48,16 @@
   function anchor(hash) { return isHome ? hash : 'index.html' + hash; }
 
   var drawerLinks = [
-    { num: '01', label: 'Accueil',    href: isHome ? '#top' : 'index.html' },
-    { num: '02', label: 'Actualités', href: anchor('#actus') },
-    { num: '03', label: 'Rejoindre',  href: anchor('#rejoindre') },
-    { num: '04', label: 'Horaires',   href: anchor('#horaires') },
-    { num: '05', label: 'La structure', children: [
-      { label: 'Le club',  href: anchor('#club') },
-      { label: 'La salle', href: anchor('#salle') },
-      { label: 'Fitness',  href: anchor('#fitness') }
+    { num: '01', label: 'Le club', children: [
+      { label: 'Palmarès',    href: anchor('#club') },
+      { label: 'Les équipes', href: anchor('#equipes') },
+      { label: 'La salle',    href: anchor('#salle') },
+      { label: 'Fitness',     href: anchor('#fitness') }
     ] },
-    { num: '06', label: 'Équipes',    href: anchor('#equipes') },
-    { num: '07', label: 'Galerie',    href: 'galerie.html' },
-    { num: '08', label: 'Contact',    href: anchor('#contact') }
+    { num: '02', label: 'Actus',    href: anchor('#actus') },
+    { num: '03', label: 'Horaires', href: anchor('#horaires') },
+    { num: '04', label: 'Galerie',  href: 'galerie.html' },
+    { num: '05', label: 'Contact',  href: anchor('#contact') }
   ];
 
   function buildDrawer() {

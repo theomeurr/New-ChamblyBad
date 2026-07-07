@@ -16,11 +16,10 @@ details summary::-webkit-details-marker{display:none}
 
 /* Contenu desktop / mobile (breakpoint maquette : 920px) */
 @media (max-width:920px){ header .rd-dsk{display:none !important} }
-/* Nav : le menu PC est fourni (10 entrées) → on bascule sur le
-   hamburger + drawer plein écran en dessous de 1260px, pour garder
-   des titres identiques mobile/desktop sans tasser la barre. */
-@media (max-width:1259px){ nav .rd-dsk{display:none !important} }
-@media (min-width:1260px){ .rd-mob{display:none !important} .rd-mobile-menu{display:none !important} }
+/* Nav : bascule desktop ↔ hamburger + drawer plein écran à 980px
+   (le menu épuré tient largement au-delà ; en dessous, hamburger). */
+@media (max-width:979px){ nav .rd-dsk{display:none !important} }
+@media (min-width:980px){ .rd-mob{display:none !important} .rd-mobile-menu{display:none !important} }
 .rd-mobile-menu{display:none}
 .rd-mobile-menu.open{display:flex !important}
 
