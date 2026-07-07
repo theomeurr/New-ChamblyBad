@@ -30,3 +30,67 @@ details summary::-webkit-details-marker{display:none}
 /* Barre de défilement horizontale discrète (scroller joueurs) */
 .rd-scroll::-webkit-scrollbar{height:8px}
 .rd-scroll::-webkit-scrollbar-thumb{background:rgba(6,11,60,.25)}
+
+/* ============================================================
+   Nav mobile flottante (pill) — injectée par js/rd-mobile.js
+   Reprise de la maquette « Site mobile et PWA ».
+   ============================================================ */
+.rd-pill{
+  position:fixed;left:16px;right:16px;bottom:16px;height:64px;
+  bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  background:rgba(6,11,60,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(165,235,120,.22);border-radius:22px;
+  display:flex;align-items:center;padding:0 8px;z-index:150;
+  box-shadow:0 18px 44px rgba(6,11,60,.5)
+}
+.rd-pill a{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  text-decoration:none;color:rgba(255,255,255,.62);transition:transform .12s ease
+}
+.rd-pill a span{font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.rd-pill a:active{transform:scale(.9)}
+.rd-pill a.is-active{color:#A5EB78}
+.rd-pill a.is-active span{font-weight:800}
+.rd-pill a.rd-pill-cta{
+  flex:0 0 auto;flex-direction:row;gap:6px;background:#A5EB78;color:#060B3C;
+  font-weight:800;font-size:11.5px;letter-spacing:.03em;padding:0 16px;height:48px;
+  border-radius:15px;margin-left:4px
+}
+.rd-pill a.rd-pill-cta span{font-size:11.5px;font-weight:800}
+.rd-pill a.rd-pill-cta:active{transform:scale(.96)}
+/* Décale le contenu pour ne pas passer sous la pill */
+body.rd-has-pill{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+/* Pill + bannière : mobile uniquement */
+@media (min-width:921px){ .rd-pill{display:none !important} body.rd-has-pill{padding-bottom:0} }
+
+/* Bouton « Installer l'application » dans le menu mobile (injecté) */
+.rd-install-drawer{
+  display:none;align-items:center;justify-content:center;gap:9px;
+  background:none;border:none;color:rgba(255,255,255,.7);font-weight:700;font-size:13px;
+  cursor:pointer;padding:10px;margin-top:4px
+}
+.rd-can-install .rd-install-drawer{display:flex}
+
+/* Bannière d'installation PWA (injectée, dismissable) */
+.rd-install-banner{
+  position:fixed;left:16px;right:16px;z-index:160;
+  bottom:calc(92px + env(safe-area-inset-bottom,0px));
+  background:#fff;color:#060B3C;border:1px solid rgba(6,11,60,.12);
+  border-radius:18px;box-shadow:0 18px 44px rgba(6,11,60,.28);
+  display:none;align-items:center;gap:12px;padding:12px 14px
+}
+.rd-can-install .rd-install-banner{display:flex}
+@media (min-width:921px){ .rd-install-banner{left:auto;right:24px;bottom:24px;max-width:360px} }
+.rd-install-banner img{width:40px;height:40px;object-fit:contain;flex:0 0 auto}
+.rd-install-banner .rd-ib-txt{flex:1;min-width:0}
+.rd-install-banner .rd-ib-txt b{display:block;font-size:14px;line-height:1.2}
+.rd-install-banner .rd-ib-txt small{display:block;font-size:11.5px;color:rgba(6,11,60,.6);margin-top:2px}
+.rd-install-banner .rd-ib-go{
+  background:#A5EB78;color:#060B3C;border:none;border-radius:12px;
+  font-weight:800;font-size:12px;letter-spacing:.03em;text-transform:uppercase;
+  padding:10px 14px;cursor:pointer;flex:0 0 auto;font-family:inherit
+}
+.rd-install-banner .rd-ib-close{
+  background:none;border:none;color:rgba(6,11,60,.4);font-size:20px;line-height:1;
+  cursor:pointer;padding:4px;flex:0 0 auto;font-family:inherit
+}
