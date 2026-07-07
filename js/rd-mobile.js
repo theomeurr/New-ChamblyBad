@@ -6,6 +6,7 @@
      3. Bouton « Installer l'application » (menu + bannière)
         piloté par l'événement beforeinstallprompt
      4. Carrousels mobile (.rd-carousel) : points indicateurs + swipe
+     5. Lightbox : clic sur [data-zoom] → photo en grand
    Le service worker, lui, est enregistré par pwa.js.
    Aucun markup à ajouter dans les pages : tout est injecté ici.
    ============================================================ */
@@ -51,11 +52,14 @@
     { num: '02', label: 'Actualités', href: anchor('#actus') },
     { num: '03', label: 'Rejoindre',  href: anchor('#rejoindre') },
     { num: '04', label: 'Horaires',   href: anchor('#horaires') },
-    { num: '05', label: 'Le club',    href: anchor('#club') },
+    { num: '05', label: 'La structure', children: [
+      { label: 'Le club',  href: anchor('#club') },
+      { label: 'La salle', href: anchor('#salle') },
+      { label: 'Fitness',  href: anchor('#fitness') }
+    ] },
     { num: '06', label: 'Équipes',    href: anchor('#equipes') },
-    { num: '07', label: 'Fitness',    href: anchor('#fitness') },
-    { num: '08', label: 'Galerie',    href: 'galerie.html' },
-    { num: '09', label: 'Contact',    href: anchor('#contact') }
+    { num: '07', label: 'Galerie',    href: 'galerie.html' },
+    { num: '08', label: 'Contact',    href: anchor('#contact') }
   ];
 
   function buildDrawer() {
@@ -63,6 +67,19 @@
     if (!menu || menu.classList.contains('rd-drawer')) return;
 
     var links = drawerLinks.map(function (l) {
+      if (l.children) {
+        var subs = l.children.map(function (c) {
+          return '<a class="rd-drawer-sublink" href="' + c.href + '" data-menu-close>' + c.label + '</a>';
+        }).join('');
+        return '<div class="rd-drawer-group">' +
+          '<button type="button" class="rd-drawer-link rd-drawer-parent" aria-expanded="false">' +
+            '<span class="rd-dl-num">' + l.num + '</span>' +
+            '<span class="rd-dl-label">' + l.label + '</span>' +
+            '<span class="rd-dl-caret">▾</span>' +
+          '</button>' +
+          '<div class="rd-drawer-sub">' + subs + '</div>' +
+        '</div>';
+      }
       return '<a class="rd-drawer-link" href="' + l.href + '" data-menu-close>' +
         '<span class="rd-dl-num">' + l.num + '</span>' +
         '<span class="rd-dl-label">' + l.label + '</span></a>';
@@ -77,7 +94,7 @@
       '<div class="rd-drawer-head">' +
         '<div class="rd-drawer-brand">' +
           '<img src="media/logo.webp" alt="BCCO" />' +
-          '<span>BCCO<small>Chambly Oise</small></span>' +
+          '<span>Badminton Club<small>Chambly Oise</small></span>' +
         '</div>' +
         '<button type="button" class="rd-drawer-close" aria-label="Fermer" data-menu-close>✕</button>' +
       '</div>' +
@@ -88,8 +105,16 @@
         '<button type="button" class="rd-install-drawer" data-pwa-install>' + SVG.download + 'Installer l’application</button>' +
       '</div>';
 
-    // Fermeture (les liens/close portent data-menu-close) + verrou de défilement
+    // Sous-menu « La structure » : ouverture/fermeture au clic
+    // + fermeture du drawer (liens/close portent data-menu-close) + verrou de défilement
     menu.addEventListener('click', function (e) {
+      var parent = e.target.closest && e.target.closest('.rd-drawer-parent');
+      if (parent) {
+        var group = parent.parentNode;
+        var isOpen = group.classList.toggle('open');
+        parent.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        return;
+      }
       if (e.target.closest && e.target.closest('[data-menu-close]')) menu.classList.remove('open');
     });
     var mo = new MutationObserver(function () {
@@ -225,6 +250,41 @@
       new MutationObserver(render).observe(car, { childList: true });
     });
   }
+
+  // ----- 5. Lightbox : clic sur [data-zoom] → photo en grand -----
+  function closeZoom() {
+    var lb = document.getElementById('rd-lightbox');
+    if (!lb) return;
+    lb.classList.remove('open');
+    document.documentElement.style.overflow = '';
+  }
+  function openZoom(src, alt) {
+    var lb = document.getElementById('rd-lightbox');
+    if (!lb) {
+      lb = document.createElement('div');
+      lb.id = 'rd-lightbox';
+      lb.className = 'rd-lightbox';
+      lb.innerHTML = '<button type="button" class="rd-lb-close" aria-label="Fermer">✕</button><img alt="" />';
+      document.body.appendChild(lb);
+      lb.addEventListener('click', function (e) {
+        if (e.target === lb || (e.target.closest && e.target.closest('.rd-lb-close'))) closeZoom();
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeZoom(); });
+    }
+    var img = lb.querySelector('img');
+    img.src = src;
+    img.alt = alt || '';
+    lb.classList.add('open');
+    document.documentElement.style.overflow = 'hidden';
+  }
+  document.addEventListener('click', function (e) {
+    var z = e.target.closest ? e.target.closest('[data-zoom]') : null;
+    if (z) {
+      e.preventDefault();
+      var inner = z.querySelector('img');
+      openZoom(z.getAttribute('data-zoom'), inner ? inner.alt : '');
+    }
+  });
 
   // ----- init -----
   function init() { buildPill(); buildDrawer(); buildCarousels(); }
