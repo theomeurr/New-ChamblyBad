@@ -15,23 +15,6 @@
   // de même côté admin-auth/config.php::TURNSTILE_SECRET_KEY).
   var TURNSTILE_SITE_KEY = '';
 
-  function parseCSV(text){
-    if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
-    var rows=[], i=0, f='', r=[], inQ=false;
-    while(i<text.length){
-      var c=text[i];
-      if(inQ){ if(c==='"'&&text[i+1]==='"'){f+='"';i+=2;continue;} if(c==='"'){inQ=false;i++;continue;} f+=c;i++;continue; }
-      if(c==='"'){inQ=true;i++;continue;}
-      if(c===','){r.push(f);f='';i++;continue;}
-      if(c==='\n'||c==='\r'){ if(f.length||r.length){r.push(f);rows.push(r);} r=[];f=''; if(c==='\r'&&text[i+1]==='\n')i+=2; else i++; continue; }
-      f+=c;i++;
-    }
-    if(f.length||r.length){r.push(f);rows.push(r);}
-    if(!rows.length) return [];
-    var h=rows[0].map(function(x){return x.trim();});
-    return rows.slice(1).filter(function(x){return x.some(function(v){return v&&v.trim();});}).map(function(x){var o={};h.forEach(function(k,idx){o[k]=(x[idx]||'').trim();});return o;});
-  }
-  function fetchCSV(url){ return fetch(url+'?t='+Date.now(),{cache:'no-cache'}).then(function(r){ if(!r.ok) throw new Error(url); return r.text(); }).then(parseCSV).catch(function(){ return []; }); }
   function pad(n){ return (n<10?'0':'')+n; }
 
   var JOURS = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
@@ -39,7 +22,6 @@
 
   // Valeurs par défaut, mises à jour par la réponse de availability.php
   var CFG = { nbTerrains:9, prix:{60:16,90:24,120:32}, reduc:25, anticipation:14 };
-  var licencies = {}; // numéro (normalisé) -> ligne, pour aperçu de prix côté client
 
   var state = { dayOffset:0, selHour:null, dur:90, slots:[] };
 
@@ -49,7 +31,6 @@
     var d=dateForOffset(off);
     return off===0 ? "Aujourd'hui" : JOURS[d.getDay()]+' '+d.getDate()+' '+MOIS[d.getMonth()];
   }
-  function normLicence(n){ return String(n||'').trim().toLowerCase().replace(/^0+/, ''); }
 
   async function loadSlots(off){
     var dateISO = iso(dateForOffset(off));
@@ -149,10 +130,6 @@
   var modal = document.getElementById('rv-modal');
   var modalSubtitle = document.getElementById('rv-modal-subtitle');
   var form = document.getElementById('rv-form');
-  var licencieCheckbox = document.getElementById('rv-licencie');
-  var licenceField = document.getElementById('rv-licence-field');
-  var numeroLicence = document.getElementById('rv-numero-licence');
-  var licenceStatus = document.getElementById('rv-licence-status');
   var submitBtn = document.getElementById('rv-submit-btn');
   var submitAmount = document.getElementById('rv-submit-amount');
   var formError = document.getElementById('rv-form-error');
@@ -160,30 +137,6 @@
   var turnstileWidgetId = null;
 
   function currentPrice(){ return CFG.prix[state.dur] || CFG.prix[60]; }
-  function isLicencieVerified(){
-    if (!licencieCheckbox || !licencieCheckbox.checked) return false;
-    return !!licencies[normLicence(numeroLicence.value)];
-  }
-  function reducedPrice(p){ if(!CFG.reduc) return p; return Math.round(p*(100-CFG.reduc))/100; }
-  function finalPrice(){ var p = currentPrice(); return isLicencieVerified() ? reducedPrice(p) : p; }
-
-  function updateLicenceStatus(){
-    if (!licencieCheckbox.checked){ licenceStatus.textContent=''; return; }
-    var v = numeroLicence.value.trim();
-    if (!v){ licenceStatus.textContent='Saisissez votre numéro pour bénéficier du tarif réduit.'; licenceStatus.style.color='#5A6380'; return; }
-    if (isLicencieVerified()){ licenceStatus.textContent='✅ Licence reconnue — tarif réduit appliqué.'; licenceStatus.style.color='#16a34a'; }
-    else { licenceStatus.textContent='⚠️ Numéro non reconnu — tarif public appliqué.'; licenceStatus.style.color='#d97706'; }
-  }
-  function updateSubmitAmount(){ submitAmount.textContent = finalPrice() + ' €'; }
-
-  if (licencieCheckbox){
-    licencieCheckbox.addEventListener('change', function(){
-      licenceField.style.display = licencieCheckbox.checked ? '' : 'none';
-      if (licencieCheckbox.checked) numeroLicence.setAttribute('required',''); else numeroLicence.removeAttribute('required');
-      updateLicenceStatus(); updateSubmitAmount();
-    });
-    numeroLicence.addEventListener('input', function(){ updateLicenceStatus(); updateSubmitAmount(); });
-  }
 
   function renderTurnstile(){
     turnstileContainer.innerHTML = '';
@@ -201,11 +154,9 @@
     var durLabel = state.dur===60?'1h':(state.dur===90?'1h30':'2h');
     modalSubtitle.textContent = dateLabel(state.dayOffset) + ' · ' + pad(state.selHour) + ':00 · ' + durLabel;
     form.reset();
-    licenceField.style.display = 'none';
-    licenceStatus.textContent = '';
     formError.style.display = 'none';
     submitBtn.disabled = false;
-    submitBtn.innerHTML = 'Payer <span id="rv-submit-amount">'+finalPrice()+' €</span>';
+    submitBtn.innerHTML = 'Payer <span id="rv-submit-amount">'+currentPrice()+' €</span>';
     modalOverlay.style.display = 'flex';
     modal.style.display = 'block';
     renderTurnstile();
@@ -236,8 +187,6 @@
       nom: document.getElementById('rv-nom').value.trim(),
       email: document.getElementById('rv-email').value.trim(),
       telephone: document.getElementById('rv-telephone').value.trim(),
-      licencie: licencieCheckbox.checked,
-      numero_licence: licencieCheckbox.checked ? numeroLicence.value.trim() : '',
       turnstile_token: getTurnstileToken()
     };
 
@@ -256,19 +205,6 @@
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalHtml;
       if (TURNSTILE_SITE_KEY && typeof turnstile !== 'undefined' && turnstileWidgetId!==null) turnstile.reset(turnstileWidgetId);
-    });
-  });
-
-  // Vérification licence — purement indicative côté client (le serveur revérifie
-  // systématiquement le tarif final avant de créer la session de paiement).
-  fetchCSV('data/reservations/licencies.csv').then(function(rows){
-    rows.forEach(function(r){
-      if(!/^(x|1|oui|true)$/i.test((r.actif||'').trim())) return;
-      var raw = String(r.numero_licence||'').trim().toLowerCase();
-      if (!raw) return;
-      licencies[raw] = r;
-      var norm = normLicence(raw);
-      if (norm) licencies[norm] = r;
     });
   });
 
