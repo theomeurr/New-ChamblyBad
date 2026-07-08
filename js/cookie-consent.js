@@ -40,25 +40,34 @@
   }
 
   function buildBanner(){
-    var bar = document.createElement('div');
-    bar.id = 'cookie-consent-bar';
-    bar.setAttribute('role', 'dialog');
-    bar.setAttribute('aria-label', 'Consentement cookies');
-    bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:500;background:#060B3C;color:#fff;'
-      + 'padding:18px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;'
-      + 'box-shadow:0 -8px 30px rgba(0,0,0,.25);font-family:"Open Sans",system-ui,sans-serif';
-    bar.innerHTML =
-      '<p style="margin:0;flex:1;min-width:240px;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.9)">'
+    var overlay = document.createElement('div');
+    overlay.id = 'cookie-consent-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(6,11,60,.6);z-index:500;'
+      + 'backdrop-filter:blur(2px)';
+    document.body.appendChild(overlay);
+
+    var card = document.createElement('div');
+    card.id = 'cookie-consent-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-label', 'Consentement cookies');
+    card.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;'
+      + 'background:#fff;border-radius:20px;max-width:420px;width:calc(100% - 40px);'
+      + 'padding:32px 30px;box-shadow:0 40px 100px rgba(0,0,0,.3);font-family:"Open Sans",system-ui,sans-serif;'
+      + 'text-align:center';
+    card.innerHTML =
+      '<div style="font-family:\'Anton\',sans-serif;font-weight:400;font-size:20px;text-transform:uppercase;color:#060B3C;margin-bottom:10px">Cookies</div>'
+      + '<p style="margin:0 0 24px;font-size:13.5px;line-height:1.6;color:#5A6380">'
       + 'Ce site utilise des cookies de mesure d\'audience, uniquement si vous l\'acceptez. '
-      + '<a href="politique-confidentialite.html" style="color:#A5EB78;text-decoration:underline">En savoir plus</a>'
+      + '<a href="politique-confidentialite.html" style="color:#0A1988;font-weight:700;text-decoration:underline">En savoir plus</a>'
       + '</p>'
-      + '<div style="display:flex;gap:10px;flex-shrink:0">'
-      +   '<button type="button" id="cookie-reject" style="background:none;border:1.5px solid rgba(255,255,255,.4);color:#fff;'
-      +     'padding:10px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;border-radius:8px">Refuser</button>'
-      +   '<button type="button" id="cookie-accept" style="background:#A5EB78;border:none;color:#060B3C;'
-      +     'padding:10px 20px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;border-radius:8px">Accepter</button>'
+      + '<div style="display:flex;gap:10px">'
+      +   '<button type="button" id="cookie-reject" style="flex:1;background:none;border:1.5px solid rgba(10,25,136,.2);color:#060B3C;'
+      +     'padding:13px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;border-radius:12px">Refuser</button>'
+      +   '<button type="button" id="cookie-accept" style="flex:1;background:linear-gradient(135deg,#A5EB78,#7ed957);border:none;color:#060B3C;'
+      +     'padding:13px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;border-radius:12px">Accepter</button>'
       + '</div>';
-    document.body.appendChild(bar);
+    document.body.appendChild(card);
 
     document.getElementById('cookie-accept').addEventListener('click', function(){
       setConsent('accepted');
@@ -72,8 +81,10 @@
   }
 
   function closeBanner(){
-    var bar = document.getElementById('cookie-consent-bar');
-    if (bar) bar.remove();
+    var overlay = document.getElementById('cookie-consent-overlay');
+    var card = document.getElementById('cookie-consent-card');
+    if (overlay) overlay.remove();
+    if (card) card.remove();
     buildReopenLink();
   }
 
