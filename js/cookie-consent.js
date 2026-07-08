@@ -49,7 +49,7 @@
       + 'box-shadow:0 -8px 30px rgba(0,0,0,.25);font-family:"Open Sans",system-ui,sans-serif';
     bar.innerHTML =
       '<p style="margin:0;flex:1;min-width:240px;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.9)">'
-      + 'Ce site utilise Google Analytics pour mesurer l\'audience, uniquement si vous l\'acceptez. '
+      + 'Ce site utilise des cookies de mesure d\'audience, uniquement si vous l\'acceptez. '
       + '<a href="politique-confidentialite.html" style="color:#A5EB78;text-decoration:underline">En savoir plus</a>'
       + '</p>'
       + '<div style="display:flex;gap:10px;flex-shrink:0">'
