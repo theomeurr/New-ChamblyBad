@@ -92,8 +92,14 @@
     </table>
 
     <h2>3. Cookies et traceurs</h2>
-    <p>Ce site n'utilise <strong>aucun cookie publicitaire ni traceur tiers</strong>. Seul le stockage local (localStorage / sessionStorage) du navigateur est utilisé pour le fonctionnement technique du site (mémorisation d'une session admin, compteur de tentatives de connexion). Ces données restent sur votre appareil et ne sont jamais transmises.</p>
-    <p>Les polices Google Fonts sont chargées depuis les serveurs de Google, qui peut à ce titre enregistrer votre adresse IP.</p>
+    <p>Ce site n'utilise <strong>aucun cookie publicitaire</strong>. Voici les éléments techniques et tiers utilisés :</p>
+    <ul>
+      <li><strong>Cookie de session (admin uniquement)</strong> — un cookie technique identifie la session lors de la connexion à l'espace d'administration. Il n'est jamais déposé chez un visiteur du site public.</li>
+      <li><strong>Stockage local (localStorage)</strong> — utilisé pour mémoriser des préférences techniques (ex : bannière d'installation de l'application déjà vue, choix de consentement cookies). Ces données restent sur votre appareil et ne sont jamais transmises à un tiers.</li>
+      <li><strong>Google Fonts</strong> — les polices du site sont chargées depuis les serveurs de Google, qui peut à ce titre enregistrer votre adresse IP.</li>
+      <li><strong>Cloudflare Turnstile</strong> — un test anti-robot (alternative aux CAPTCHA classiques) protège le formulaire de réservation contre les soumissions automatisées.</li>
+      <li><strong>Google Analytics</strong> (si activé) — mesure d'audience anonymisée. Chargé uniquement après votre consentement explicite via le bandeau affiché en bas de page ; vous pouvez revenir sur votre choix à tout moment via le bouton « Cookies » (coin inférieur gauche).</li>
+    </ul>
 
     <h2>4. Destinataires</h2>
     <p>Les données sont traitées par les membres du bureau du BCCO habilités (président, trésorier, responsable communication) et, le cas échéant, par Google (Google Sheets, hébergement UE/US sous accord de transfert encadré). <strong>Aucune donnée n'est vendue, louée ou partagée à des fins commerciales.</strong></p>
@@ -129,5 +135,6 @@
 <script src="js/rd-ui.js" defer></script>
 <script src="js/rd-mobile.js" defer></script>
 <script src="pwa.js" defer></script>
+<script src="js/cookie-consent.js" defer></script>
 </body>
 </html>
