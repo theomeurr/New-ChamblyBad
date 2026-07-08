@@ -1,9 +1,14 @@
 
 // Authentification gérée côté serveur (PHP + MySQL, voir admin-auth/).
 // Cette page n'est atteinte que si la session PHP est valide (admin-auth/auth.php::require_login()).
-initActusPreview();
-initReservationsPreview();
-initDeployBar();
+// Différé d'un tick : initReservationsPreview() utilise RV_ADMIN_CONFIG, une const
+// définie plus bas dans ce fichier — l'appeler en synchrone ici lève une erreur de
+// Temporal Dead Zone qui arrête toute l'exécution du script (donc aussi initDeployBar()).
+setTimeout(function(){
+  initActusPreview();
+  initReservationsPreview();
+  initDeployBar();
+}, 0);
 
 /* =================================================================
    BARRE DE PUBLICATION — statut du dernier déploiement o2switch
