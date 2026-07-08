@@ -23,6 +23,24 @@
     b.addEventListener('click', function(){ setCat(b.getAttribute('data-cat')); });
   });
 
+  // ----- Documents utiles : filtre Majeur / Mineur -----
+  var docBtns = document.querySelectorAll('[data-doc-cat]');
+  var docCards = document.querySelectorAll('[data-doc-tag]');
+  function setDocCat(cat){
+    docBtns.forEach(function(b){
+      var on = b.getAttribute('data-doc-cat') === cat;
+      b.style.background = on ? '#060B3C' : 'rgba(6,11,60,.12)';
+      b.style.color = on ? '#A5EB78' : '#060B3C';
+    });
+    docCards.forEach(function(c){
+      var tag = c.getAttribute('data-doc-tag');
+      c.style.display = (tag === 'commun' || tag === cat) ? 'flex' : 'none';
+    });
+  }
+  docBtns.forEach(function(b){
+    b.addEventListener('click', function(){ setDocCat(b.getAttribute('data-doc-cat')); });
+  });
+
   // ----- Compteurs animés -----
   function animateCount(el){
     var target = parseInt(el.getAttribute('data-count'), 10) || 0;
