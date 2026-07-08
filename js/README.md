@@ -3,14 +3,6 @@
 Chaque fichier correspond à une fonctionnalité ou une page.  
 Chargés directement via `<script defer>` dans le HTML — aucun bundler.
 
-## Partagés (toutes les pages)
-
-| Fichier | Rôle |
-|---------|------|
-| `nav-mega.js` | Menu desktop (mega menu déroulant) |
-| `nav-pill.js` | Navigation mobile (bottom nav) |
-| `animations.js` | Animations au scroll |
-
 ## Page d'accueil (`index.html`)
 
 | Fichier | Rôle |

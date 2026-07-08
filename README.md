@@ -81,9 +81,6 @@ ChamblyBad/
 │   └── _responsive.css            # Media queries globales
 │
 ├── js/                            # JavaScript par fonctionnalité
-│   ├── nav-mega.js                # Menu desktop (mega menu)
-│   ├── nav-pill.js                # Navigation mobile (bottom nav)
-│   ├── animations.js              # Animations au scroll (GSAP-like)
 │   ├── actualites.js              # Cartes actualités + modal détail
 │   ├── rencontres.js              # Prochains matchs et résultats
 │   ├── roster.js                  # Roster joueurs Top 12
