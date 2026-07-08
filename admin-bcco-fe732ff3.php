@@ -416,6 +416,12 @@ tr:hover{background:rgba(165,235,120,.04)}
 </head>
 <body>
 
+<div id="deployBar" style="background:#0B1130;color:#fff;padding:8px 20px;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;flex-wrap:wrap">
+  <span id="deployDot" style="width:8px;height:8px;border-radius:50%;background:#9aa2bd;flex-shrink:0"></span>
+  <span id="deployText">Vérification du statut de publication…</span>
+  <button type="button" id="deployBtn" onclick="triggerDeploy()" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.35);color:#fff;padding:5px 14px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit">Publier maintenant</button>
+</div>
+
 <div class="topbar" id="topbar">
   <div class="logo">
     <img src="./media/cropped-Logo-BCCO-180x180.webp" alt="BCCO"/>

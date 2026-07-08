@@ -3,6 +3,96 @@
 // Cette page n'est atteinte que si la session PHP est valide (admin-auth/auth.php::require_login()).
 initActusPreview();
 initReservationsPreview();
+initDeployBar();
+
+/* =================================================================
+   BARRE DE PUBLICATION — statut du dernier déploiement o2switch
+   -----------------------------------------------------------------
+   Chaque sauvegarde dans l'admin part déjà toute seule en ligne
+   (commit GitHub → déploiement auto). Cette barre affiche juste où
+   ça en est, et permet de redéclencher un déploiement en un clic si
+   besoin (ex: doute sur la synchro, ou pour ne pas attendre).
+================================================================== */
+let deployPollTimer = null;
+
+function initDeployBar(){
+  if (!document.getElementById('deployBar')) return;
+  refreshDeployStatus();
+  setInterval(refreshDeployStatus, 30000);
+}
+
+function relativeTimeFr(iso){
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60) return 'à l\'instant';
+  if (diff < 3600) return 'il y a ' + Math.floor(diff / 60) + ' min';
+  if (diff < 86400) return 'il y a ' + Math.floor(diff / 3600) + ' h';
+  return 'il y a ' + Math.floor(diff / 86400) + ' j';
+}
+
+async function refreshDeployStatus(){
+  const dot = document.getElementById('deployDot');
+  const text = document.getElementById('deployText');
+  if (!dot || !text) return null;
+  try {
+    const r = await fetch('admin-auth/deploy_status.php', { credentials: 'same-origin', cache: 'no-cache' });
+    const data = await r.json();
+    if (!r.ok || data.error){
+      text.textContent = data.error || 'Statut de publication indisponible';
+      dot.style.background = '#9aa2bd';
+      return null;
+    }
+    if (data.status !== 'completed'){
+      dot.style.background = '#f59e0b';
+      text.textContent = 'Publication en cours…';
+    } else if (data.conclusion === 'success'){
+      dot.style.background = '#A5EB78';
+      text.textContent = 'Site à jour · publié ' + relativeTimeFr(data.created_at);
+    } else {
+      dot.style.background = '#ef4444';
+      text.innerHTML = 'Dernière publication en échec · <a href="' + data.html_url + '" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline">voir le détail</a>';
+    }
+    return data;
+  } catch(e){
+    text.textContent = 'Statut de publication indisponible';
+    dot.style.background = '#9aa2bd';
+    return null;
+  }
+}
+
+async function triggerDeploy(){
+  const btn = document.getElementById('deployBtn');
+  const text = document.getElementById('deployText');
+  const dot = document.getElementById('deployDot');
+  if (!btn) return;
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = 'Envoi…';
+  try {
+    const r = await fetch('admin-auth/deploy_trigger.php', { method: 'POST', credentials: 'same-origin' });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+
+    dot.style.background = '#f59e0b';
+    text.textContent = 'Publication déclenchée…';
+
+    if (deployPollTimer) clearInterval(deployPollTimer);
+    let attempts = 0;
+    deployPollTimer = setInterval(async function(){
+      attempts++;
+      const status = await refreshDeployStatus();
+      if ((status && status.status === 'completed') || attempts > 20){
+        clearInterval(deployPollTimer);
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      }
+    }, 6000);
+  } catch(e){
+    text.textContent = 'Erreur : ' + e.message;
+    dot.style.background = '#ef4444';
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
 
 /* =================================================================
    APERCU RESERVATIONS TERRAINS — données réelles (MySQL) + config CSV
